@@ -35,6 +35,41 @@ class Insert:
         for first_name, last_name, password, email, role_name in users:
             Insert.insert_user_if_not_exists(conn, cursor, first_name, last_name, password, email, role_name)
 
+    @staticmethod
+    def create_hardcoded_customers(conn, cursor):
+        # (first_name, last_name, email, address, phone, reputation)
+        customers = [
+            # Regular customers with good reputation (default 50)
+            ("John", "Doe", "john.doe@example.com", "123 Elm Street", "1234567890", 50),
+            ("Jane", "Smith", "jane.smith@example.com", "456 Oak Avenue", "9876543210", 50),
+            ("Alice", "Johnson", "alice.johnson@example.com", "789 Pine Road", "1122334455", 50),
+            ("Bob", "Williams", "bob.williams@example.com", "321 Maple Blvd", "6677889900", 50),
+            ("Charlie", "Brown", "charlie.brown@example.com", "101 Birch Lane", "3344556677", 50),
+            ("Emily", "Davis", "emily.davis@example.com", "202 Cedar Street", "2233445566", 50),
+
+            # Customers with bad reputation (below 20)
+            ("Tom", "Green", "tom.green@example.com", "789 Ash Ave", "5566778899", 15),  # Low reputation
+            ("Samantha", "Black", "samantha.black@example.com", "567 Elmwood Drive", "9988776655", 12),  # Low reputation
+            ("Michael", "White", "michael.white@example.com", "345 Maple Street", "1122334455", 18),  # Low reputation
+            ("Olivia", "Blue", "olivia.blue@example.com", "678 Oakwood Rd", "6677889900", 10),  # Low reputation
+            ("David", "Gray", "david.gray@example.com", "432 Pinewood Blvd", "3344556677", 5),   # Very low reputation
+            ("Sophia", "Purple", "sophia.purple@example.com", "654 Cedarwood St", "2233445566", 2),   # Very low reputation
+        ]
+        
+        for first_name, last_name, email, address, phone_number, reputation in customers:
+            cursor.execute("""
+                SELECT COUNT(*) FROM customers WHERE email = %s
+            """, (email,))
+            customer_exists = cursor.fetchone()[0]
+            
+            if customer_exists == 0:
+                cursor.execute("""
+                    INSERT INTO customers (first_name, last_name, email, phone_number, address, reputation)
+                    VALUES (%s, %s, %s, %s, %s, %s)
+                """, (first_name, last_name, email, phone_number, address, reputation))
+             
+
+        conn.commit()
 
     @staticmethod
     def add_user(conn, cursor, first_name, last_name, email, password):

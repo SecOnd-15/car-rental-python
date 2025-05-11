@@ -20,6 +20,7 @@ class DatabaseManager:
         self.create_user_tables()
         self.create_car_tables()
         self.create_service_tables()
+        self.create_customer_rental_tables()
 
         # Users
         Insert.create_hardcoded_users(self.conn, self.cursor)
@@ -32,9 +33,12 @@ class DatabaseManager:
         Insert.create_hardcoded_cars(conn=self.conn, cursor=self.cursor)
 
         #Service
-        
         Insert.create_hardcoded_services_statuses(conn=self.conn, cursor=self.cursor)
         Insert.create_hardcoded_services(conn=self.conn, cursor=self.cursor)
+
+        #Customers
+        
+        Insert.create_hardcoded_customers(conn=self.conn, cursor=self.cursor)
 
   
 
@@ -91,7 +95,9 @@ class DatabaseManager:
             )
         """)
 
+
         self.conn.commit()
+
 
     def create_car_tables(self):
         self.cursor.execute("CREATE DATABASE IF NOT EXISTS vehicle_management")
@@ -154,4 +160,53 @@ class DatabaseManager:
         """)
         self.conn.commit()
         
-   
+    def create_customer_rental_tables(self):
+        self.cursor.execute("CREATE DATABASE IF NOT EXISTS vehicle_management")
+        self.conn.commit()
+        self.cursor.execute("USE vehicle_management")
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS customers (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                first_name VARCHAR(100) NOT NULL,
+                last_name VARCHAR(100) NOT NULL,
+                email VARCHAR(100) NOT NULL UNIQUE,
+                phone_number VARCHAR(15),
+                address VARCHAR(255),
+                reputation INT DEFAULT 50
+            )
+        """)
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS rentals (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                customer_id INT NOT NULL,
+                car_id INT NOT NULL,
+                rental_date VARCHAR(255) NOT NULL,
+                return_date VARCHAR(255),
+                total_amount DECIMAL(10, 2) NOT NULL,
+                FOREIGN KEY (customer_id) REFERENCES customers(id)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+                FOREIGN KEY (car_id) REFERENCES cars(id)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+            )
+        """)
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS rental_services (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                rental_id INT NOT NULL,
+                service_id INT NOT NULL,
+                FOREIGN KEY (rental_id) REFERENCES rentals(id)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+                FOREIGN KEY (service_id) REFERENCES services(id)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+            )
+        """)
+
+        self.conn.commit()
+
