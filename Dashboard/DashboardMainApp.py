@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 import sys
 
 from Dashboard.AdminFrames.StaffManagement import StaffManagementFrame
+from Dashboard.ManagerFrames.AddCarRequest import AddCarRequestFrame
 
 class Dashboard(tk.Tk):
     def __init__(self):
@@ -42,7 +43,8 @@ class Dashboard(tk.Tk):
 
         # Frames dictionary
         self.frames = {
-            "StaffManagement": StaffManagementFrame(self.mainFrame, app=self)
+            "StaffManagement": StaffManagementFrame(self.mainFrame, app=self),
+            "AddCarRequest": AddCarRequestFrame(self.mainFrame, app=self)
         }
 
        

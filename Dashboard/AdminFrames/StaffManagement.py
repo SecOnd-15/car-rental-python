@@ -1,7 +1,6 @@
 import tkinter as tk
 from Session.PseudoSession import Session
 from tkinter import ttk
-from Database.DatabaseManager import DatabaseManager
 from Database.DatabaseInstance import db_manager
 
 class StaffManagementFrame(tk.Frame):

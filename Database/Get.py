@@ -60,3 +60,74 @@ class Get:
                 "role": row[4]
             } for row in rows
         ]
+
+    @staticmethod
+    def get_all_cars_data(cursor):
+        try:
+            cursor.execute("""
+                SELECT 
+                    c.id, 
+                    cp.name AS producer_name, 
+                    c.model_name, 
+                    c.car_year, 
+                    ft.type AS fuel_type, 
+                    t.type AS transmission,
+                    availability_statuses.status AS availability_status,  -- This will return the availability status name
+                    c.daily_rental_price, 
+                    c.seats, 
+                    c.plate_number, 
+                    c.deletion_status
+                FROM cars c
+                JOIN car_producers cp ON c.producer_id = cp.id
+                JOIN fuel_types ft ON c.fuel_type_id = ft.id
+                JOIN transmissions t ON c.transmission_id = t.id
+                JOIN availability_statuses ON c.availability_id = availability_statuses.id
+            """)
+
+            # Fetch all car data
+            cars_data = cursor.fetchall()
+
+            return cars_data
+        except Exception as e:
+            raise Exception(f"Error fetching car data: {str(e)}")
+        
+    @staticmethod
+    def get_all_producer_names(cursor):
+        try:
+            cursor.execute("""
+                SELECT name FROM car_producers
+            """)
+            
+            producer_names = cursor.fetchall()
+            return [producer[0] for producer in producer_names]
+        
+        except Exception as e:
+            raise Exception(f"Error fetching producer names: {str(e)}")
+        
+    @staticmethod
+    def get_all_transmission_types(cursor):
+        try:
+            cursor.execute("""
+                SELECT type FROM transmissions
+            """)
+            
+            transmission_types = cursor.fetchall()
+            
+            return [transmission[0] for transmission in transmission_types]
+        
+        except Exception as e:
+            raise Exception(f"Error fetching transmission types: {str(e)}")
+        
+    @staticmethod
+    def get_all_fuel_types(cursor):
+        try:
+            cursor.execute("""
+                SELECT type FROM fuel_types
+            """)
+            
+            fuel_types = cursor.fetchall()
+            
+            return [fuel_type[0] for fuel_type in fuel_types]
+        
+        except Exception as e:
+            raise Exception(f"Error fetching fuel types: {str(e)}")

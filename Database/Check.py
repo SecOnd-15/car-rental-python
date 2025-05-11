@@ -18,3 +18,5 @@ class Check:
         cursor.execute("SELECT id, password FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         return user and user[1] == password
+    
+    

@@ -12,15 +12,15 @@ class DashboardMenu(tk.Frame):
         self.buttons = []
         self.last_pressed = None
 
-        self.add_button("Statistic", "Statistic")
+        # self.add_button("Statistic", "Statistic")
 
         #if Session.session_role == "Staff":
             #self.add_button("Create Request", "CreateRequest")
             #self.add_button("Create Car Rent", "RentCar")
             
 
-        #if Session.session_role == "Manager":
-            #self.add_button("Add Cars", "AddCars")
+        if Session.session_role == "Manager":
+            self.add_button("Add Cars", "AddCarRequest")
             #self.add_button("Edit Car Rental Price", "EditCarRentalPrice")
             #self.add_button("Delete Cars", "DeleteCars")
             #self.add_button("Car Maintenance", "CarMaintenance")
