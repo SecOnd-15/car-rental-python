@@ -113,6 +113,48 @@ class Get:
             raise Exception(f"Error fetching car data: {str(e)}")
         
     @staticmethod
+    def get_all_pending_services(cursor):
+        try:
+            cursor.execute("""
+                SELECT s.service_name, s.price, ss.status_name
+                FROM services s
+                JOIN service_statuses ss ON s.status_id = ss.id
+                WHERE ss.status_name = 'Pending'
+            """)
+
+            services = cursor.fetchall()
+
+            services_array = [
+                {'service_name': service[0], 'price': service[1], 'status_name': service[2]}
+                for service in services
+            ]
+            
+            return services_array
+
+        except Exception as e:
+            raise Exception(f"Error retrieving pending services: {str(e)}")
+        
+    @staticmethod
+    def get_all_pending_service_names(cursor):
+        try:
+          
+            cursor.execute("""
+                SELECT s.service_name
+                FROM services s
+                JOIN service_statuses ss ON s.status_id = ss.id
+                WHERE ss.status_name = 'Pending'
+            """)
+
+            services = cursor.fetchall()
+
+            service_names = [service[0] for service in services]
+            
+            return service_names
+
+        except Exception as e:
+            raise Exception(f"Error retrieving pending service names: {str(e)}")
+            
+    @staticmethod
     def get_all_cars_data_to_be_deleted(cursor):
         cursor.execute("""
             SELECT 

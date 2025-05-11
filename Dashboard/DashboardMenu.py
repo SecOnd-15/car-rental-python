@@ -33,6 +33,7 @@ class DashboardMenu(tk.Frame):
             self.add_button("Car Approval", "CarApproval")
             self.add_button("Car Deletion Approval", "CarDeletionApproval")
             self.add_button("Edit Rental Price", "EditCarRentalPrice")
+            self.add_button("Service Approval", "ServiceApproval")
           
         self.logoutButton = tk.Button(
             self,

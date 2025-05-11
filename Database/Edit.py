@@ -81,4 +81,28 @@ class Edit:
         
         except Exception as e:
             raise Exception(f"Error updating price for car with plate '{license_plate}': {str(e)}")
-          
+        
+    @staticmethod
+    def edit_service_to_available(cursor, conn, service_name):
+        try:
+            cursor.execute("""
+                SELECT id FROM service_statuses WHERE status_name = 'Available'
+            """)
+            available_status = cursor.fetchone()
+
+            if not available_status:
+                raise Exception("Status 'Available' not found in the service_statuses table.")
+
+            available_status_id = available_status[0]
+
+            cursor.execute("""
+                UPDATE services
+                SET status_id = %s
+                WHERE service_name = %s
+            """, (available_status_id, service_name))
+
+            conn.commit()
+
+        except Exception as e:
+            raise Exception(f"Error updating service status to 'Available': {str(e)}")
+            
