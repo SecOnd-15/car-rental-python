@@ -6,6 +6,7 @@ import sys
 
 from Dashboard.AdminFrames.StaffManagement import StaffManagementFrame
 from Dashboard.ManagerFrames.AddCarRequest import AddCarRequestFrame
+from Dashboard.ManagerFrames.CarDeleteRequest import CarDeleteRequestFrame
 from Dashboard.AdminFrames.CarApproval import CarApprovalFrame
 
 class Dashboard(tk.Tk):
@@ -46,7 +47,8 @@ class Dashboard(tk.Tk):
         self.frames = {
             "StaffManagement": StaffManagementFrame(self.mainFrame, app=self),
             "AddCarRequest": AddCarRequestFrame(self.mainFrame, app=self),
-            "CarApproval": CarApprovalFrame(self.mainFrame, app=self)
+            "CarApproval": CarApprovalFrame(self.mainFrame, app=self),
+            "CarDeletionRequest": CarDeleteRequestFrame(self.mainFrame, app=self)
         }
 
        

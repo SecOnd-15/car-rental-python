@@ -92,6 +92,58 @@ class Get:
             raise Exception(f"Error fetching car data: {str(e)}")
         
     @staticmethod
+    def get_all_cars_data_to_be_deleted(cursor):
+        cursor.execute("""
+            SELECT 
+                c.id, 
+                cp.name AS producer_name, 
+                c.model_name, 
+                c.car_year, 
+                ft.type AS fuel_type, 
+                t.type AS transmission,
+                availability_statuses.status AS availability_status,  
+                c.daily_rental_price, 
+                c.seats, 
+                c.plate_number, 
+                c.deletion_status
+            FROM cars c
+            JOIN car_producers cp ON c.producer_id = cp.id
+            JOIN fuel_types ft ON c.fuel_type_id = ft.id
+            JOIN transmissions t ON c.transmission_id = t.id
+            JOIN availability_statuses ON c.availability_id = availability_statuses.id
+            WHERE c.deletion_status = 'To Be Deleted'
+        """)
+        
+        return cursor.fetchall()
+        
+    @staticmethod
+    def get_car_data_by_license_plate(cursor, license_plate):
+        cursor.execute("""
+            SELECT 
+                c.id, 
+                cp.name AS producer_name, 
+                c.model_name, 
+                c.car_year, 
+                ft.type AS fuel_type, 
+                t.type AS transmission,
+                availability_statuses.status AS availability_status,  
+                c.daily_rental_price, 
+                c.seats, 
+                c.plate_number, 
+                c.deletion_status
+            FROM cars c
+            JOIN car_producers cp ON c.producer_id = cp.id
+            JOIN fuel_types ft ON c.fuel_type_id = ft.id
+            JOIN transmissions t ON c.transmission_id = t.id
+            JOIN availability_statuses ON c.availability_id = availability_statuses.id
+            WHERE c.plate_number = %s
+        """, (license_plate,))
+        
+        result = cursor.fetchone()
+        
+        return result
+        
+    @staticmethod
     def get_all_pending_cars_data(cursor):
         try:
             cursor.execute("""
@@ -161,6 +213,13 @@ class Get:
         
         except Exception as e:
             raise Exception(f"Error fetching fuel types: {str(e)}")
+        
+    @staticmethod
+    def get_all_plate_numbers(cursor):
+        cursor.execute("""
+            SELECT plate_number FROM cars
+        """)
+        return cursor.fetchall()
     
     @staticmethod
     def get_all_pending_plate(cursor):

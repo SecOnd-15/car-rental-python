@@ -19,4 +19,14 @@ class Check:
         user = cursor.fetchone()
         return user and user[1] == password
     
+    @staticmethod
+    def is_plate_marked_for_deletion(cursor, license_plate):
+        cursor.execute("""
+            SELECT deletion_status
+            FROM cars
+            WHERE plate_number = %s
+        """, (license_plate,))
+        result = cursor.fetchone()
+        return result[0] == "To Be Deleted" if result else False
+        
     

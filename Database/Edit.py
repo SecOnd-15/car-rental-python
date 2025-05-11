@@ -39,3 +39,32 @@ class Edit:
         """, (availability_id, licensePlate))
 
         conn.commit()
+
+    @staticmethod
+    def mark_car_to_be_deleted(cursor, conn, license_plate):
+        try:
+            cursor.execute("""
+                UPDATE cars
+                SET deletion_status = 'To Be Deleted'
+                WHERE plate_number = %s
+            """, (license_plate,))
+            
+            conn.commit() 
+
+        except Exception as e:
+            raise Exception(f"Error marking car for deletion: {str(e)}")
+
+    @staticmethod
+    def mark_car_as_none(cursor, conn, license_plate):
+        try:
+            cursor.execute("""
+                UPDATE cars
+                SET deletion_status = 'None'
+                WHERE plate_number = %s
+            """, (license_plate,))
+            
+            conn.commit()
+        
+        except Exception as e:
+            raise Exception(f"Error removing car for deletion: {str(e)}")
+          
