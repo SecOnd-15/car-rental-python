@@ -404,3 +404,27 @@ class Get:
 
         except Exception as e:
             raise Exception(f"Error fetching price for service '{service_name}': {str(e)}")
+        
+    @staticmethod
+    def get_user_reputation(cursor, full_name):
+        try:
+            parts = full_name.rsplit(" ", 1)
+            if len(parts) == 2:
+                first_name, last_name = parts
+            else:
+                first_name, last_name = parts[0], None
+            
+            cursor.execute("""
+                SELECT reputation 
+                FROM customers 
+                WHERE first_name = %s AND last_name = %s
+            """, (first_name, last_name))
+            
+            result = cursor.fetchone()
+            return int(result[0]) if result else None
+
+        except Exception as e:
+            raise Exception(f"Error fetching reputation for customer '{full_name}': {str(e)}")
+        
+
+    

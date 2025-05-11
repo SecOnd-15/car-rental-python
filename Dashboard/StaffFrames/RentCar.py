@@ -1,4 +1,5 @@
 import tkinter as tk
+import re
 from tkinter import ttk
 from Database.DatabaseManager import DatabaseManager
 from Database.DatabaseInstance import db_manager
@@ -120,7 +121,7 @@ class RentCarFrame(tk.Frame):
             )
             rb_yes.grid(row=i + 1, column=2, sticky="w")
 
-        self.rent_car_button = tk.Button(self, text="Rent Car", font=("Helvetica", 14), bg="#00998F", fg="white", bd=0, relief="sunken")
+        self.rent_car_button = tk.Button(self, text="Rent Car", font=("Helvetica", 14), bg="#00998F", fg="white", bd=0, relief="sunken", command=self.rent_car_button)
         self.rent_car_button.pack(pady=(20, 0))
         
         # Car Tree
@@ -134,7 +135,7 @@ class RentCarFrame(tk.Frame):
         self.tree.pack(expand=True, fill="both", padx=10, pady=10)
 
         self.load_data_from_db()
-        
+
     def toggle_downpayment_spinbox(self, event=None):
         if self.payment_method_combobox.get() == "Down Payment":
             self.downpayment_spinbox.config(state="normal")
@@ -239,3 +240,110 @@ class RentCarFrame(tk.Frame):
 
             # Update the total price field
             self.total_price_var.set(f"${self.total_price:.2f}")
+
+    def validate_rent_inputs(self):
+        if not self.car_plate_combobox.get():
+            raise ValueError("Car plate number is required.")
+        if not self.renter_name_combobox.get():
+            raise ValueError("Renter's full name is required.")
+        
+        start_date_str = self.start_date_entry.get()
+        if not start_date_str:
+            raise ValueError("Start date is required.")
+        
+        end_date_str = self.end_date_entry.get()
+        if not end_date_str:
+            raise ValueError("End date is required.")
+        try:
+            start_date = datetime.strptime(start_date_str, "%d/%m/%y")
+        except ValueError:
+            raise ValueError("Start date must be in DD/MM/YY format.")
+        
+        try:
+            end_date = datetime.strptime(end_date_str, "%d/%m/%y")
+        except ValueError:
+            raise ValueError("End date must be in DD/MM/YY format.")
+        
+        if end_date < start_date:
+            raise ValueError("End date cannot be before start date.")
+        
+        if not self.payment_method_combobox.get():
+            raise ValueError("Payment method is required.")
+
+    def rent_car_button(self):
+        try:
+            self.validate_rent_inputs()
+
+            full_name = self.renter_name_combobox.get()
+            car_plate = self.car_plate_combobox.get().strip()
+
+            reputation = db_manager.Get.get_user_reputation(cursor=db_manager.cursor, full_name=full_name)
+
+            if reputation is not None and reputation < 20:
+                response = messagebox.askyesno("Bad Reputation Warning",
+                                            "This customer has a bad reputation (below 20). Do you still want to proceed?")
+                if not response:
+                    return
+
+            rental_date = self.start_date_entry.get()
+            return_date = self.end_date_entry.get()
+            total_amount = float(re.sub(r'[^\d.]', '', self.total_price_entry.get()))
+
+            payment_method = self.payment_method_combobox.get()
+            if payment_method != "Down Payment":
+                downpayment_amount = 0.0
+            else:
+                downpayment_amount = float(self.downpayment_spinbox.get())
+
+            selected_services = [
+                service for service, var in self.service_vars.items() if var.get() == 1
+            ]
+
+            db_manager.Insert.add_rental(
+                conn=db_manager.conn,
+                cursor=db_manager.cursor,
+                full_name=full_name,
+                plate_number=car_plate,
+                rental_date=rental_date,
+                return_date=return_date,
+                total_amount=total_amount,
+                downpayment_amount=downpayment_amount,
+                selected_services=selected_services
+            )
+
+            db_manager.Edit.edit_car_availability(
+                cursor=db_manager.cursor,
+                conn=db_manager.conn,
+                licensePlate=car_plate,
+                newStatus="Unavailable"
+            )
+
+            self.warningText.config(text="Successful Rent!", fg="green")
+            self.clear()
+
+        except ValueError as e:
+            self.warningText.config(text=str(e), fg="red")
+
+
+
+    def clear(self):
+        self.car_plate_combobox.set('')
+        self.renter_name_combobox.set('')
+
+        self.start_date_entry.delete(0, tk.END)
+        self.end_date_entry.delete(0, tk.END)
+
+        self.payment_method_combobox.set('')
+        # self.downpayment_spinbox.set(0)
+
+        self.total_price = 0
+        self.total_price_var.set(f"${self.total_price:.2f}")
+
+        self.downpayment_spinbox.configure(state="disabled")
+
+        for var in self.service_vars.values():
+            var.set(0)  # Setting to 0 means "No"
+
+        self.warningText.config(text="")
+
+        self.rental_period_var.set('')
