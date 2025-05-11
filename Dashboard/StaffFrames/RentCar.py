@@ -9,11 +9,6 @@ class RentCarFrame(tk.Frame):
     def __init__(self, master=None, app=None, **kwargs):
         super().__init__(master, **kwargs)
         self.app = app
-
-        self.total_price = 0
-        self.base_price = 0
-        self.selected_services = []
-        
         
         self.configure(bg="#f0f0f0")
         self.total_price = 0
@@ -108,10 +103,16 @@ class RentCarFrame(tk.Frame):
             var = tk.IntVar(value=0)
             self.service_vars[service] = var
 
-            rb_no = tk.Radiobutton(self.services_frame, text="No", variable=var, value=0, bg="#e0e0e0", font=("Helvetica", 10))
+            rb_no = tk.Radiobutton(
+                self.services_frame, text="No", variable=var, value=0,
+                bg="#e0e0e0", font=("Helvetica", 10), command=self.update_selected_services
+            )
             rb_no.grid(row=i + 1, column=1, sticky="w", padx=(10, 0))
 
-            rb_yes = tk.Radiobutton(self.services_frame, text="Yes", variable=var, value=1, bg="#e0e0e0", font=("Helvetica", 10))
+            rb_yes = tk.Radiobutton(
+                self.services_frame, text="Yes", variable=var, value=1,
+                bg="#e0e0e0", font=("Helvetica", 10), command=self.update_selected_services
+            )
             rb_yes.grid(row=i + 1, column=2, sticky="w")
 
         self.rent_car_button = tk.Button(self, text="Rent Car", font=("Helvetica", 14), bg="#00998F", fg="white", bd=0, relief="sunken")
@@ -128,6 +129,12 @@ class RentCarFrame(tk.Frame):
         self.tree.pack(expand=True, fill="both", padx=10, pady=10)
 
         self.load_data_from_db()
+
+    def update_selected_services(self):
+        self.selected_services = [
+            service for service, var in self.service_vars.items() if var.get() == 1
+        ]
+        self.calculate_total_price()
 
     def on_plate_selected(self, event=None):
         # First show the selected car's details
