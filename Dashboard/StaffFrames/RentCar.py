@@ -20,10 +20,10 @@ class RentCarFrame(tk.Frame):
         
         tk.Label(self, text="Rent a Car", font=("Helvetica", 26, "bold"), bg="#f0f4f8", fg="#333").pack(pady=10)
         self.warningText = tk.Label(self, text="", font=("Helvetica", 10, "bold"), bg="#f0f4f8", fg="red")
-        self.warningText.pack(pady=(0, 10))
+        self.warningText.pack(pady=(0, 0))
 
         form_frame = tk.Frame(self, bg="#f0f0f0")
-        form_frame.pack(pady=(20, 0))
+        form_frame.pack(pady=(0, 0))
 
         self.car_plate_label = tk.Label(form_frame, text="Car Plate Number:", bg="#f0f0f0", font=("Helvetica", 12))
         self.car_plate_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
@@ -46,34 +46,37 @@ class RentCarFrame(tk.Frame):
         self.payment_method_combobox = ttk.Combobox(form_frame, values=["Down Payment", "Cash in Direct"], state="readonly", font=("Helvetica", 12))
         self.payment_method_combobox.grid(row=2, column=1, pady=5, padx=10, sticky="w")
 
+        self.downpayment_label = tk.Label(form_frame, text="Down Payment Amount ($):", bg="#f0f0f0", font=("Helvetica", 12))
+        self.downpayment_spinbox = tk.Spinbox(form_frame, from_=0, to=10000, increment=50, font=("Helvetica", 12), state="disabled")
+        self.downpayment_label.grid(row=3, column=0, padx=10, pady=5, sticky="e")
+        self.downpayment_spinbox.grid(row=3, column=1, pady=5, padx=10, sticky="w")
+
         self.rental_period_label = tk.Label(form_frame, text="Rental Period (Days):", bg="#f0f0f0", font=("Helvetica", 12))
-        self.rental_period_label.grid(row=3, column=0, padx=10, pady=5, sticky="e")
+        self.rental_period_label.grid(row=4, column=0, padx=10, pady=5, sticky="e")
         self.rental_period_var = tk.StringVar()
         self.rental_period_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken", state="readonly", textvariable=self.rental_period_var)
-        self.rental_period_entry.grid(row=3, column=1, pady=5, padx=10, sticky="w")
+        self.rental_period_entry.grid(row=4, column=1, pady=5, padx=10, sticky="w")
 
         self.start_date_label = tk.Label(form_frame, text="Start Date (DD/MM/YY):", bg="#f0f0f0", font=("Helvetica", 12))
-        self.start_date_label.grid(row=4, column=0, padx=10, pady=5, sticky="e")
+        self.start_date_label.grid(row=5, column=0, padx=10, pady=5, sticky="e")
         self.start_date_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken")
-        self.start_date_entry.grid(row=4, column=1, pady=5, padx=10, sticky="w")
+        self.start_date_entry.grid(row=5, column=1, pady=5, padx=10, sticky="w")
         self.start_date_entry.bind("<FocusOut>", self.calculate_total_price)
         self.start_date_entry.bind("<KeyRelease>", self.calculate_total_price)
       
-       
-
         self.end_date_label = tk.Label(form_frame, text="End Date (DD/MM/YY):", bg="#f0f0f0", font=("Helvetica", 12))
-        self.end_date_label.grid(row=5, column=0, padx=10, pady=5, sticky="e")
+        self.end_date_label.grid(row=6, column=0, padx=10, pady=5, sticky="e")
         self.end_date_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken")
-        self.end_date_entry.grid(row=5, column=1, pady=5, padx=10, sticky="w")
+        self.end_date_entry.grid(row=6, column=1, pady=5, padx=10, sticky="w")
         self.end_date_entry.bind("<FocusOut>", self.calculate_total_price)
         self.end_date_entry.bind("<KeyRelease>", self.calculate_total_price)
 
         self.total_price_label = tk.Label(form_frame, text="Total Price ($):", bg="#f0f0f0", font=("Helvetica", 12))
-        self.total_price_label.grid(row=6, column=0, padx=10, pady=5, sticky="e")
+        self.total_price_label.grid(row=7, column=0, padx=10, pady=5, sticky="e")
         self.total_price_var = tk.StringVar()
         self.total_price_var.set(f"${self.total_price:.2f}")
         self.total_price_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken", state="readonly", textvariable=self.total_price_var)
-        self.total_price_entry.grid(row=6, column=1, pady=5, padx=10, sticky="w")
+        self.total_price_entry.grid(row=7, column=1, pady=5, padx=10, sticky="w")
 
         services_container = tk.Frame(form_frame, bg="#e0e0e0")
         services_container.grid(row=0, column=2, rowspan=6, padx=10, pady=5, sticky="nsew")
