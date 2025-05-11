@@ -2,6 +2,8 @@ import mysql.connector
 from Database.Insert import Insert
 from Database.Get import Get
 from Database.Check import Check
+from Database.Delete import Delete
+from Database.Edit import Edit
 
 class DatabaseManager:
     def __init__(self, conn, cursor):
@@ -10,6 +12,9 @@ class DatabaseManager:
         self.Insert = Insert
         self.Get = Get
         self.Check = Check
+        self.Delete = Delete
+        self.Edit = Edit
+
 
     def bootstrap(self):
         self.create_tables()

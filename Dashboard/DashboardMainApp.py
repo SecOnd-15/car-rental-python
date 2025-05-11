@@ -4,10 +4,11 @@ from Session.PseudoSession import Session
 import matplotlib.pyplot as plt
 import sys
 
+from Dashboard.AdminFrames.StaffManagement import StaffManagementFrame
+
 class Dashboard(tk.Tk):
     def __init__(self):
         super().__init__() 
-        self.framesWithTables = {"AddCars", "EditCarRentalPrice", "CarMaintenance", "StaffManagement", "CarApproval", "CarDeletionApproval", "ServiceApproval", "RentCar"}
         self.title("Dashboard")
         self.state('zoomed')
         self.geometry(f"800x600+{(self.winfo_screenwidth()//2)-425}+{(self.winfo_screenheight()//2)-350}")
@@ -41,8 +42,7 @@ class Dashboard(tk.Tk):
 
         # Frames dictionary
         self.frames = {
-         
-           
+            "StaffManagement": StaffManagementFrame(self.mainFrame, app=self)
         }
 
        
@@ -51,7 +51,7 @@ class Dashboard(tk.Tk):
 
         
         self.currentFrame = None
-        self.ChangeFrame("Statistic")  
+        # self.ChangeFrame("Statistic")  
 
         # 10% ang menu
         self.grid_rowconfigure(0, weight=0)  
@@ -74,9 +74,6 @@ class Dashboard(tk.Tk):
         """Switch between frames"""
         self.currentFrame = frame_name
         self.frames[frame_name].tkraise()
-
-        if frame_name in self.framesWithTables:
-            self.frames[frame_name].load_data_from_db()
         
 
 

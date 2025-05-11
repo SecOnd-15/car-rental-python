@@ -29,3 +29,34 @@ class Get:
                 "role": role
             }
         return None
+    
+    @staticmethod
+    def get_all_user_ids(cursor, conn):
+        cursor.execute("USE vehicle_management")
+        cursor.execute("SELECT id FROM users")
+        return [row[0] for row in cursor.fetchall()]
+    
+
+    @staticmethod
+    def get_all_users_data(cursor, conn):
+        cursor.execute("USE vehicle_management")
+        cursor.execute("""
+            SELECT 
+                users.id, 
+                users.first_name, 
+                users.last_name, 
+                users.email, 
+                roles.name AS role
+            FROM users
+            JOIN roles ON users.role_id = roles.id
+        """)
+        rows = cursor.fetchall()
+        return [
+            {
+                "id": row[0],
+                "first_name": row[1],
+                "last_name": row[2],
+                "email": row[3],
+                "role": row[4]
+            } for row in rows
+        ]
