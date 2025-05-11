@@ -67,4 +67,18 @@ class Edit:
         
         except Exception as e:
             raise Exception(f"Error removing car for deletion: {str(e)}")
+        
+    @staticmethod
+    def edit_car_price_by_plate(cursor, conn, license_plate, new_price):
+        try:
+            cursor.execute("""
+                UPDATE cars
+                SET daily_rental_price = %s
+                WHERE plate_number = %s
+            """, (new_price, license_plate))
+            
+            conn.commit()
+        
+        except Exception as e:
+            raise Exception(f"Error updating price for car with plate '{license_plate}': {str(e)}")
           
