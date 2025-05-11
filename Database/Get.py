@@ -84,7 +84,6 @@ class Get:
                 JOIN availability_statuses ON c.availability_id = availability_statuses.id
             """)
 
-            # Fetch all car data
             cars_data = cursor.fetchall()
 
             return cars_data
@@ -111,6 +110,16 @@ class Get:
             JOIN fuel_types ft ON c.fuel_type_id = ft.id
             JOIN transmissions t ON c.transmission_id = t.id
             JOIN availability_statuses ON c.availability_id = availability_statuses.id
+            WHERE c.deletion_status = 'To Be Deleted'
+        """)
+        
+        return cursor.fetchall()
+    
+    @staticmethod
+    def get_all_cars_data_to_be_deleted(cursor):
+        cursor.execute("""
+            SELECT c.plate_number
+            FROM cars c
             WHERE c.deletion_status = 'To Be Deleted'
         """)
         
