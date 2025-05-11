@@ -45,6 +45,8 @@ class RentCarFrame(tk.Frame):
         self.payment_method_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
         self.payment_method_combobox = ttk.Combobox(form_frame, values=["Down Payment", "Cash in Direct"], state="readonly", font=("Helvetica", 12))
         self.payment_method_combobox.grid(row=2, column=1, pady=5, padx=10, sticky="w")
+        self.payment_method_combobox.bind("<<ComboboxSelected>>", self.toggle_downpayment_spinbox)
+
 
         self.downpayment_label = tk.Label(form_frame, text="Down Payment Amount ($):", bg="#f0f0f0", font=("Helvetica", 12))
         self.downpayment_spinbox = tk.Spinbox(form_frame, from_=0, to=10000, increment=50, font=("Helvetica", 12), state="disabled")
@@ -132,6 +134,12 @@ class RentCarFrame(tk.Frame):
         self.tree.pack(expand=True, fill="both", padx=10, pady=10)
 
         self.load_data_from_db()
+        
+    def toggle_downpayment_spinbox(self, event=None):
+        if self.payment_method_combobox.get() == "Down Payment":
+            self.downpayment_spinbox.config(state="normal")
+        else:
+            self.downpayment_spinbox.config(state="disabled")
 
     def update_selected_services(self):
         self.selected_services = [
@@ -194,11 +202,11 @@ class RentCarFrame(tk.Frame):
         if price is not None:
             self.base_price = price
             
-            # Get the rental period based on start and end dates
+            # Get the rental period start and end dates
             start_date_str = self.start_date_entry.get()
             end_date_str = self.end_date_entry.get()
             
-            # Default the total price to 0 if dates are not provided
+            # if missing and isa sa start or end date, then default price 0
             if not start_date_str or not end_date_str:
                 self.total_price = 0
                 self.total_price_var.set(f"${self.total_price:.2f}")
@@ -209,6 +217,7 @@ class RentCarFrame(tk.Frame):
                 end_date = datetime.strptime(end_date_str, "%d/%m/%y")
                 rental_period = (end_date - start_date).days
                 
+                # If same day and end considered giyapon day 1
                 if rental_period <= 0:
                     rental_period = 1
                     self.total_price = self.base_price
@@ -219,7 +228,7 @@ class RentCarFrame(tk.Frame):
 
                
             except ValueError:
-                self.total_price = 0  # Reset to 0 if dates are invalid
+                self.total_price = 0 
         
             # Add prices for selected services
             for service, var in self.service_vars.items():
