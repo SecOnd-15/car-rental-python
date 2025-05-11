@@ -74,7 +74,11 @@ class StaffManagementFrame(tk.Frame):
                 raise ValueError("User Id is required.")
             
             
-            db_manager.Delete.delete_user(user_id)
+            db_manager.Delete.delete_user(
+                cursor=db_manager.cursor,
+                conn=db_manager.conn,
+                id=user_id
+            )
             self.warningText.config(text=f"Successfully deleted user id:{user_id}", fg="green")
             self.clear()
             self.load_data_from_db()
