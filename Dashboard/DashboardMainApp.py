@@ -14,6 +14,8 @@ from Dashboard.AdminFrames.CarDeletionApproval import CarDeletionApprovalFrame
 from Dashboard.AdminFrames.EditCarRentalPrice import EditCarRentalPriceFrame
 from Dashboard.AdminFrames.ServiceApproval import ServiceApprovalFrame
 
+from Dashboard.StaffFrames.RentCar import RentCarFrame
+
 class Dashboard(tk.Tk):
     def __init__(self):
         super().__init__() 
@@ -58,7 +60,8 @@ class Dashboard(tk.Tk):
             "EditCarRentalPrice": EditCarRentalPriceFrame(self.mainFrame, app=self),
             "AddServiceRequest": AddServiceRequestFrame(self.mainFrame, app=self),
             "ServiceApproval": ServiceApprovalFrame(self.mainFrame, app=self),
-            "CarMaintenance": CarMaintenanceFrame(self.mainFrame, app=self)
+            "CarMaintenance": CarMaintenanceFrame(self.mainFrame, app=self),
+            "RentCar": RentCarFrame(self.mainFrame, app=self)
         }
 
        

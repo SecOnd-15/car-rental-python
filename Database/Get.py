@@ -343,3 +343,64 @@ class Get:
 
         except Exception as e:
             raise Exception(f"Error fetching availability for car with plate {license_plate}: {str(e)}")
+        
+
+    @staticmethod
+    def get_all_customer_names(cursor):
+        try:
+            cursor.execute("""
+                SELECT CONCAT(first_name, ' ', last_name) AS full_name
+                FROM customers
+            """)
+            customer_names = cursor.fetchall()
+
+            return [row[0] for row in customer_names] if customer_names else []
+
+        except Exception as e:
+            raise Exception(f"Error fetching customer names: {str(e)}")
+        
+    @staticmethod
+    def get_all_service_names_and_prices(cursor):
+        try:
+            cursor.execute("""
+                SELECT s.service_name, s.price
+                FROM services s
+                JOIN service_statuses ss ON s.status_id = ss.id
+                WHERE ss.status_name = 'Available'
+            """)
+            services = cursor.fetchall()
+
+            return {service_name: float(price) for service_name, price in services} if services else {}
+
+        except Exception as e:
+            raise Exception(f"Error fetching available services and prices: {str(e)}")
+        
+    @staticmethod
+    def get_car_price_by_plate(cursor, plate_number):
+        try:
+            cursor.execute("""
+                SELECT daily_rental_price
+                FROM cars
+                WHERE plate_number = %s
+            """, (plate_number,))
+            
+            result = cursor.fetchone()
+            return float(result[0]) if result else None
+
+        except Exception as e:
+            raise Exception(f"Error fetching price for car with plate {plate_number}: {str(e)}")
+        
+    @staticmethod
+    def get_service_price_by_name(cursor, service_name):
+        try:
+            cursor.execute("""
+                SELECT price
+                FROM services
+                WHERE service_name = %s
+            """, (service_name,))
+            
+            result = cursor.fetchone()
+            return float(result[0]) if result else None
+
+        except Exception as e:
+            raise Exception(f"Error fetching price for service '{service_name}': {str(e)}")

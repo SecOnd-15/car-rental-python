@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from Database.DatabaseManager import DatabaseManager
+from Database.DatabaseInstance import db_manager
 from tkinter import messagebox
 from datetime import datetime
 
@@ -8,6 +9,11 @@ class RentCarFrame(tk.Frame):
     def __init__(self, master=None, app=None, **kwargs):
         super().__init__(master, **kwargs)
         self.app = app
+
+        self.total_price = 0
+        self.base_price = 0
+        self.selected_services = []
+        
         
         self.configure(bg="#f0f0f0")
         self.total_price = 0
@@ -26,19 +32,19 @@ class RentCarFrame(tk.Frame):
 
         self.car_plate_label = tk.Label(form_frame, text="Car Plate Number:", bg="#f0f0f0", font=("Helvetica", 12))
         self.car_plate_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
-        self.car_plate_combobox = ttk.Combobox(form_frame, values=DatabaseManager.GetAvailableCars(), state="readonly", font=("Helvetica", 12))
+        self.car_plate_combobox = ttk.Combobox(form_frame, values=db_manager.Get.get_all_plate_numbers(cursor=db_manager.cursor), state="readonly", font=("Helvetica", 12))
         self.car_plate_combobox.grid(row=0, column=1, pady=5, padx=10, sticky="w")
-        self.car_plate_combobox.bind("<<ComboboxSelected>>", lambda event: self.calculate_total_price())
+        self.car_plate_combobox.bind("<<ComboboxSelected>>", self.on_plate_selected)
 
+
+        
         self.renter_name_label = tk.Label(form_frame, text="Renter's Full Name:", bg="#f0f0f0", font=("Helvetica", 12))
         self.renter_name_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
-        self.customer_names = DatabaseManager.GetAllCustomerNames()
+        self.customer_names = db_manager.Get.get_all_customer_names(cursor=db_manager.cursor)
         self.renter_name_var = tk.StringVar()
-        self.renter_name_combobox = ttk.Combobox(form_frame, textvariable=self.renter_name_var, font=("Helvetica", 12))
+        self.renter_name_combobox = ttk.Combobox(form_frame, textvariable=self.renter_name_var, font=("Helvetica", 12), state="readonly")
         self.renter_name_combobox['values'] = self.customer_names
         self.renter_name_combobox.grid(row=1, column=1, pady=5, padx=10, sticky="w")
-        self.renter_name_combobox.configure(state="normal")
-        self.renter_name_combobox.bind("<KeyRelease>", self.on_keyrelease)
 
         self.payment_method_label = tk.Label(form_frame, text="Payment Method:", bg="#f0f0f0", font=("Helvetica", 12))
         self.payment_method_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
@@ -51,20 +57,21 @@ class RentCarFrame(tk.Frame):
         self.rental_period_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken", state="readonly", textvariable=self.rental_period_var)
         self.rental_period_entry.grid(row=3, column=1, pady=5, padx=10, sticky="w")
 
-        
         self.start_date_label = tk.Label(form_frame, text="Start Date (DD/MM/YY):", bg="#f0f0f0", font=("Helvetica", 12))
         self.start_date_label.grid(row=4, column=0, padx=10, pady=5, sticky="e")
         self.start_date_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken")
         self.start_date_entry.grid(row=4, column=1, pady=5, padx=10, sticky="w")
-        self.start_date_entry.bind("<KeyRelease>", lambda event: self.calculate_rental_days())
+        self.start_date_entry.bind("<FocusOut>", self.calculate_total_price)
+        self.start_date_entry.bind("<KeyRelease>", self.calculate_total_price)
+      
+       
 
-        
         self.end_date_label = tk.Label(form_frame, text="End Date (DD/MM/YY):", bg="#f0f0f0", font=("Helvetica", 12))
         self.end_date_label.grid(row=5, column=0, padx=10, pady=5, sticky="e")
         self.end_date_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken")
         self.end_date_entry.grid(row=5, column=1, pady=5, padx=10, sticky="w")
-        self.end_date_entry.bind("<KeyRelease>", lambda event: self.calculate_rental_days())
-
+        self.end_date_entry.bind("<FocusOut>", self.calculate_total_price)
+        self.end_date_entry.bind("<KeyRelease>", self.calculate_total_price)
 
         self.total_price_label = tk.Label(form_frame, text="Total Price ($):", bg="#f0f0f0", font=("Helvetica", 12))
         self.total_price_label.grid(row=6, column=0, padx=10, pady=5, sticky="e")
@@ -82,7 +89,6 @@ class RentCarFrame(tk.Frame):
         scrollbar = ttk.Scrollbar(services_container, orient="vertical", command=services_canvas.yview)
         scrollbar.pack(side="right", fill="y")
         services_canvas.configure(yscrollcommand=scrollbar.set)
-        services_canvas.bind('<Configure>', lambda e: services_canvas.configure(scrollregion=services_canvas.bbox("all")))
 
         self.services_frame = tk.Frame(services_canvas, bg="#e0e0e0")
         services_canvas.create_window((0, 0), window=self.services_frame, anchor="nw")
@@ -90,9 +96,11 @@ class RentCarFrame(tk.Frame):
         services_title = tk.Label(self.services_frame, text="Additional Services:", bg="#e0e0e0", font=("Helvetica", 12, "bold"))
         services_title.grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 10))
 
-        service_data = DatabaseManager.GetAllServicesDataForRent()
+        service_data = db_manager.Get.get_all_service_names_and_prices(cursor=db_manager.cursor)
+
         self.service_vars = {}
 
+        # Services
         for i, (service, price) in enumerate(service_data.items()):
             label = tk.Label(self.services_frame, text=f"{service} (${price:.2f}):", bg="#e0e0e0", font=("Helvetica", 11))
             label.grid(row=i + 1, column=0, sticky="w", pady=2)
@@ -100,15 +108,16 @@ class RentCarFrame(tk.Frame):
             var = tk.IntVar(value=0)
             self.service_vars[service] = var
 
-            rb_no = tk.Radiobutton(self.services_frame, text="No", variable=var, value=0, bg="#e0e0e0", font=("Helvetica", 10), command=self.on_service_change)
+            rb_no = tk.Radiobutton(self.services_frame, text="No", variable=var, value=0, bg="#e0e0e0", font=("Helvetica", 10))
             rb_no.grid(row=i + 1, column=1, sticky="w", padx=(10, 0))
 
-            rb_yes = tk.Radiobutton(self.services_frame, text="Yes", variable=var, value=1, bg="#e0e0e0", font=("Helvetica", 10), command=self.on_service_change)
+            rb_yes = tk.Radiobutton(self.services_frame, text="Yes", variable=var, value=1, bg="#e0e0e0", font=("Helvetica", 10))
             rb_yes.grid(row=i + 1, column=2, sticky="w")
 
-        self.rent_car_button = tk.Button(self, text="Rent Car", font=("Helvetica", 14), bg="#00998F", fg="white", bd=0, relief="sunken", command=self.rent_car_button_functions)
+        self.rent_car_button = tk.Button(self, text="Rent Car", font=("Helvetica", 14), bg="#00998F", fg="white", bd=0, relief="sunken")
         self.rent_car_button.pack(pady=(20, 0))
-
+        
+        # Car Tree
         self.tree = ttk.Treeview(self, columns=("Plate", "Make", "Model", "Year", "Fuel", "Trans", "Price", "Seats", "Availability"), show="headings")
         for col in self.tree["columns"]:
             self.tree.heading(col, text=col)
@@ -120,209 +129,94 @@ class RentCarFrame(tk.Frame):
 
         self.load_data_from_db()
 
-    def calculate_total_price(self):
-        plate_number = self.car_plate_combobox.get()
-        price = DatabaseManager.GetCarRentalPrice(plate_number)
-        if price is not None:
-            self.base_price = price
-            self.total_price = self.base_price
-            self.total_price_var.set(f"${self.total_price:.2f}")
-            self.selected_services = []
-            self.rental_period_entry.delete(0, tk.END)
-            self.rental_period_entry.insert(0, "1")
-            self.reset_all_services()
+    def on_plate_selected(self, event=None):
+        # First show the selected car's details
+        self.show_selected_plate_data(event)
+        
+        # Then calculate the total price
+        self.calculate_total_price(event)
 
-            for var in self.service_vars.values():
-                var.set(0)
-
-            # Load selected car into the Treeview
-            self.load_selected_car_to_tree(plate_number)
-            self.calculate_rental_days()
-
-
-    def on_service_change(self):
-        selected_services = self.get_selected_services()
-        total_additional_price = 0
-
-        for service in selected_services:
-            additional = DatabaseManager.GetServicePrice(service)
-            if additional:
-                total_additional_price += additional
-
-        self.total_price = self.base_price + total_additional_price
-        self.selected_services = selected_services
-        self.total_price_var.set(f"${self.total_price:.2f}")
-        self.calculate_rental_days()
-
-    def get_selected_services(self):
-        return [service for service, var in self.service_vars.items() if var.get() == 1]
-
-    def rent_car_button_functions(self):
-        car_plate = self.car_plate_combobox.get()
-        renter_name = self.renter_name_var.get()
-        payment_method = self.payment_method_combobox.get()
-        rental_period = self.rental_period_var.get()
-        start_date = self.start_date_entry.get().strip()
-        end_date = self.end_date_entry.get().strip()
-
-        try:
-            self.check_and_add_if_new_user(name=renter_name)
-
-            self.validation(car_plate, renter_name, rental_period, payment_method)
-
-            if DatabaseManager.get_customer_reputation(renter_name) < 20:
-                result = messagebox.askyesno(
-                    "Bad Reputation",
-                    f"{renter_name} has a bad reputation. Do you still want to rent the car?"
-                )
-                if not result:
-                    return
-
-            car_price = DatabaseManager.GetCarRentalPrice(car_plate)
-            total_price = float(car_price) * int(rental_period)
-
-            self.total_price_entry.config(state="normal")
-            self.total_price_entry.delete(0, tk.END)
-            self.total_price_entry.insert(0, f"{total_price:.2f}")
-            self.total_price_entry.config(state="readonly")
-
-            selected_services = self.get_selected_services()
-            total_additional_price = 0
-
-            for service in selected_services:
-                additional = DatabaseManager.GetServicePrice(service)
-                if additional:
-                    total_additional_price += additional
-
-            total_price += float(total_additional_price)
-
-            DatabaseManager.rent_car_and_services(
-                car_plate=car_plate,
-                renter_name=renter_name,
-                rental_period=rental_period,
-                total_price=total_price,
-                payment_method=payment_method,
-                services=selected_services,
-                starting_date=start_date,
-                ending_date=end_date
-            )
-
-            self.warningText.config(text="Car rented successfully!", fg="green")
+    def show_selected_plate_data(self, event=None):
+        selected_plate = self.car_plate_combobox.get()
+        self.tree.delete(*self.tree.get_children())
+        if selected_plate == "Select Plate Number":
             self.load_data_from_db()
-            self.clear()
-
-            self.customer_names = DatabaseManager.GetAllCustomerNames()
-            self.renter_name_combobox['values'] = self.customer_names
-
-        except ValueError as e:
-            self.warningText.config(text=str(e), fg="red")
-
-    def validation(self, car_plate, renter_name, rental_period, payment_method):
-        if not car_plate.strip():
-            raise ValueError("Car plate is required.")
-        if not renter_name.strip():
-            raise ValueError("Renter's full name is required.")
-        if not rental_period.strip() or not rental_period.isdigit() or int(rental_period) <= 0:
-            raise ValueError("Valid rental period is required.")
-        if not payment_method.strip():
-            raise ValueError("Payment method is required.")
+        else:
+            data = db_manager.Get.get_car_data_by_license_plate(cursor=db_manager.cursor, license_plate=selected_plate)
+            if data:
+                self.tree.insert("", "end", values=(
+                    data[9],  # Plate Number
+                    data[1],  # Make (Producer Name)
+                    data[2],  # Model
+                    data[3],  # Year
+                    data[4],  # Fuel Type
+                    data[5],  # Transmission
+                    data[7],  # Price
+                    data[8],  # Seats
+                    data[6],  # Availability Status
+                    data[10]  # Deletion Status
+                ))
 
     def load_data_from_db(self):
-        for row in self.tree.get_children():
-            self.tree.delete(row)
-        for car in DatabaseManager.GetAllCars():
-            self.tree.insert("", "end", values=car)
-
-    def on_keyrelease(self, event):
-        value = self.renter_name_var.get().strip().lower()
-        filtered = [n for n in self.customer_names if value in n.lower()] if value else self.customer_names
-        self.renter_name_combobox['values'] = filtered
-        self.renter_name_combobox.selection_clear()
-
-    def check_and_add_if_new_user(self, name):
-        if not DatabaseManager.ExistingCustomerExists(name):
-            DatabaseManager.AddExistingCustomer(name)
-
-    def clear(self):
-        self.car_plate_combobox.set('')
-        self.renter_name_combobox.set('')
-        self.payment_method_combobox.set('')
-        
-        self.rental_period_entry.delete(0, tk.END)
-        
-        self.total_price_entry.config(state="normal")
-        self.total_price_entry.delete(0, tk.END)
-        self.total_price_entry.config(state="readonly")
-        
-        for var in self.service_vars.values():
-            var.set(0)
-        
-        self.total_price_var.set("$0.00")
-        self.base_price = 0
-        self.total_price = 0
-        self.selected_services = []
-        
-        self.start_date_entry.delete(0, tk.END)
-        self.end_date_entry.delete(0, tk.END)
-        
-        self.reset_car_plate_combobox()
-
-    def reset_car_plate_combobox(self):
-        self.car_plate_combobox['values'] = DatabaseManager.GetAvailableCars()
-        self.car_plate_combobox.set('')
-
-    def update_total_price(self):
-        car_plate = self.car_plate_combobox.get()
-        rental_period = self.rental_period_entry.get()
-
-        try:
-            base_price = DatabaseManager.GetCarRentalPrice(car_plate)
-            days = int(rental_period)
-
-            if base_price is None:
-                raise ValueError("Invalid car or no price found.")
-
-            service_total = sum(
-                DatabaseManager.GetServicePrice(service) or 0
-                for service in self.get_selected_services()
-            )
-
-            total = base_price * days + service_total
-            self.total_price = total
-            self.total_price_var.set(f"${total:.2f}")
-
-        except (ValueError, TypeError):
-            self.total_price_var.set("$0.00")
-
-    def reset_all_services(self):
-        for var in self.service_vars.values():
-            var.set(0)
-        self.on_service_change()
-
-    def load_selected_car_to_tree(self, plate_number):
-
         self.tree.delete(*self.tree.get_children())
-        car = DatabaseManager.GetCarByPlate(plate_number)
-        if car:
-            self.tree.insert("", "end", values=car)
+        data = db_manager.Get.get_all_cars_data(cursor=db_manager.cursor)
 
-    def calculate_rental_days(self):
-        start_date_str = self.start_date_entry.get().strip()
-        end_date_str = self.end_date_entry.get().strip()
+        for car in data:
+            self.tree.insert("", "end", values=(
+                car[9],  # Plate Number
+                car[1],  # Make (Producer Name)
+                car[2],  # Model
+                car[3],  # Year
+                car[4],  # Fuel Type
+                car[5],  # Transmission
+                car[7],  # Price
+                car[8],  # Seats
+                car[6],  # Availability Status
+                car[10]  # Deletion Status
+            ))
 
-        try:
-            start_date = datetime.strptime(start_date_str, "%d/%m/%y")
-            end_date = datetime.strptime(end_date_str, "%d/%m/%y")
-
-            if end_date < start_date:
-                self.rental_period_var.set("")
-                self.total_price_var.set("$0.00")
+    def calculate_total_price(self, event=None):
+        # Get the car's base price
+        plate_number = self.car_plate_combobox.get()
+        price = db_manager.Get.get_car_price_by_plate(cursor=db_manager.cursor, plate_number=plate_number)
+        
+        # Check if a valid price was retrieved
+        if price is not None:
+            self.base_price = price
+            
+            # Get the rental period based on start and end dates
+            start_date_str = self.start_date_entry.get()
+            end_date_str = self.end_date_entry.get()
+            
+            # Default the total price to 0 if dates are not provided
+            if not start_date_str or not end_date_str:
+                self.total_price = 0
+                self.total_price_var.set(f"${self.total_price:.2f}")
                 return
+            
+            try:
+                start_date = datetime.strptime(start_date_str, "%d/%m/%y")
+                end_date = datetime.strptime(end_date_str, "%d/%m/%y")
+                rental_period = (end_date - start_date).days
+                
+                if rental_period <= 0:
+                    rental_period = 1
+                    self.total_price = self.base_price
+                    self.rental_period_var.set(str(rental_period))
+                else:
+                    self.rental_period_var.set(str(rental_period))
+                    self.total_price = self.base_price * rental_period
 
-            days = (end_date - start_date).days + 1
-            self.rental_period_var.set(str(days))
-            self.update_total_price()
+               
+            except ValueError:
+                self.total_price = 0  # Reset to 0 if dates are invalid
+        
+            # Add prices for selected services
+            for service, var in self.service_vars.items():
+                if var.get() == 1:
+                    service_price = db_manager.Get.get_service_price_by_name(cursor=db_manager.cursor, service_name=service)
+                    if service_price:
+                        self.total_price += service_price
 
-        except ValueError:
-            self.rental_period_var.set("")
-            self.total_price_var.set("$0.00")
+            # Update the total price field
+            self.total_price_var.set(f"${self.total_price:.2f}")
