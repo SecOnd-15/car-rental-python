@@ -62,6 +62,28 @@ class Get:
         ]
 
     @staticmethod
+    def get_all_services_data(cursor):
+        try:
+            cursor.execute("""
+                SELECT s.service_name, s.price, ss.status_name
+                FROM services s
+                JOIN service_statuses ss ON s.status_id = ss.id
+            """)
+
+          
+            services = cursor.fetchall()
+
+            services_array = [
+                {'service_name': service[0], 'price': service[1], 'status_name': service[2]}
+                for service in services
+            ]
+            
+            return services_array
+
+        except Exception as e:
+            raise Exception(f"Error retrieving services: {str(e)}")
+
+    @staticmethod
     def get_all_cars_data(cursor):
         try:
             cursor.execute("""

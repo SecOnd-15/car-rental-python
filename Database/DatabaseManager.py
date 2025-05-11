@@ -19,6 +19,8 @@ class DatabaseManager:
     def bootstrap(self):
         self.create_user_tables()
         self.create_car_tables()
+        self.create_service_tables()
+
         # Users
         Insert.create_hardcoded_users(self.conn, self.cursor)
 
@@ -28,6 +30,11 @@ class DatabaseManager:
         Insert.create_car_availability_status(conn=self.conn, cursor=self.cursor)
         Insert.create_transmission(conn=self.conn, cursor=self.cursor)
         Insert.create_hardcoded_cars(conn=self.conn, cursor=self.cursor)
+
+        #Service
+        
+        Insert.create_hardcoded_services_statuses(conn=self.conn, cursor=self.cursor)
+        Insert.create_hardcoded_services(conn=self.conn, cursor=self.cursor)
 
   
 
@@ -52,6 +59,33 @@ class DatabaseManager:
                 email VARCHAR(100) NOT NULL UNIQUE,
                 role_id INT NOT NULL,
                 FOREIGN KEY (role_id) REFERENCES roles(id)
+                    ON DELETE RESTRICT
+                    ON UPDATE CASCADE
+            )
+        """)
+
+        self.conn.commit()
+
+    
+    def create_service_tables(self):
+        self.cursor.execute("CREATE DATABASE IF NOT EXISTS vehicle_management")
+        self.conn.commit()
+        self.cursor.execute("USE vehicle_management")
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS service_statuses (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                status_name VARCHAR(50) NOT NULL UNIQUE
+            )
+        """)
+
+        self.cursor.execute("""
+            CREATE TABLE IF NOT EXISTS services (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                service_name VARCHAR(100) NOT NULL,
+                price DECIMAL(10, 2) NOT NULL CHECK (price > 0),
+                status_id INT NOT NULL,
+                FOREIGN KEY (status_id) REFERENCES service_statuses(id)
                     ON DELETE RESTRICT
                     ON UPDATE CASCADE
             )

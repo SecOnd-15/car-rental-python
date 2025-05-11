@@ -29,4 +29,16 @@ class Check:
         result = cursor.fetchone()
         return result[0] == "To Be Deleted" if result else False
         
+
+    @staticmethod
+    def check_service_exists(cursor, service_name):
+        try:
+            cursor.execute("""
+                SELECT 1 FROM services
+                WHERE service_name = %s
+                LIMIT 1
+            """, (service_name,))
+            return cursor.fetchone() is not None
+        except Exception as e:
+            raise Exception(f"Error checking if service exists: {str(e)}")
     

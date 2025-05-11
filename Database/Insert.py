@@ -184,6 +184,70 @@ class Insert:
 
         conn.commit()
 
+
+    @staticmethod
+    def create_hardcoded_services_statuses(cursor, conn):
+        try:
+            statuses = ['Pending', 'Available']
+
+            for status in statuses:
+                cursor.execute("""
+                    SELECT 1 FROM service_statuses WHERE status_name = %s
+                """, (status,))
+                exists = cursor.fetchone()
+
+                if not exists:
+                    cursor.execute("""
+                        INSERT INTO service_statuses (status_name)
+                        VALUES (%s)
+                    """, (status,))
+            
+            conn.commit()
+
+        except Exception as e:
+            raise Exception(f"Error ensuring service statuses: {str(e)}")
+        
+    @staticmethod
+    def create_hardcoded_services(cursor, conn):
+        try:
+            services = [
+                ('GPS Navigation', 5.00, 'Pending'),
+                ('Child Seat', 7.50, 'Pending'),
+                ('Additional Insurance', 15.00, 'Available'),
+                ('Roadside Assistance', 10.00, 'Available'),
+                ('Wi-Fi Hotspot', 8.00, 'Available'),
+                ('Extended Mileage', 12.00, 'Available')
+            ]
+
+            for name, price, status_name in services:
+                # Check if the status exists
+                cursor.execute("""
+                    SELECT id FROM service_statuses WHERE status_name = %s
+                """, (status_name,))
+                status = cursor.fetchone()
+
+                if not status:
+                    raise Exception(f"Status '{status_name}' not found. Run ensure_service_statuses first.")
+
+                status_id = status[0]
+
+                # Check if the service already exists
+                cursor.execute("""
+                    SELECT 1 FROM services WHERE service_name = %s
+                """, (name,))
+                exists = cursor.fetchone()
+
+                if not exists:
+                    cursor.execute("""
+                        INSERT INTO services (service_name, price, status_id)
+                        VALUES (%s, %s, %s)
+                    """, (name, price, status_id))
+
+            conn.commit()
+
+        except Exception as e:
+            raise Exception(f"Error creating hardcoded services: {str(e)}")
+
     @staticmethod
     def insert_car(cursor, conn, car_make, model_name, car_year, fuel_type, transmission, daily_rental_price, seats, plate_number):
 
@@ -226,3 +290,17 @@ class Insert:
         except Exception as e:
             conn.rollback()
             raise Exception(f"Error inserting car: {str(e)}")
+        
+
+    @staticmethod
+    def insert_service(cursor, conn, service_name, price):
+        try:
+            cursor.execute("""
+                INSERT INTO services (service_name, price, status_id)
+                SELECT %s, %s, id FROM service_statuses WHERE status_name = "Pending"
+            """, (service_name, price))
+
+            conn.commit()
+
+        except Exception as e:
+            raise Exception(f"Error inserting service: {str(e)}")

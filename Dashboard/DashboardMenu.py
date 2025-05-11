@@ -25,7 +25,7 @@ class DashboardMenu(tk.Frame):
             self.add_button("Delete Cars", "CarDeletionRequest")
             #self.add_button("Car Maintenance", "CarMaintenance")
             #self.add_button("View Request", "ViewRequest")
-            #self.add_button("Create Service", "CreateService")
+            self.add_button("Create Service", "AddServiceRequest")
            
 
         if Session.session_role == "Admin":
