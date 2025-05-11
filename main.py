@@ -57,15 +57,20 @@ class App(tk.Tk):
         
     
     # Create session
-    def CreateSession(self, email, password):
-        # TODO:
-        Data = db_manager.GetUserData(email=email, password=password)
-        Session.NewSession(
-            id=Data["id"],
-            name=f"{Data['first_name']} {Data['last_name']}",
-            email=Data["email"],
-            role=Data["role"]
-        )
+    def CreateSession(self, email, password):   
+        Data = db_manager.Get.get_user_data(
+            conn=db_manager.conn, 
+            cursor=db_manager.cursor,
+            email=email,
+            password=password)
+        
+        if Data:
+            Session.NewSession(
+                id=Data["id"],
+                name=f"{Data['first_name']} {Data['last_name']}",
+                email=Data["email"],
+                role=Data["role"]
+            )
 
 
       

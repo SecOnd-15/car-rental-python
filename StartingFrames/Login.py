@@ -48,10 +48,8 @@ class LoginFrame(tk.Frame):
         email = self.email_entry.get()
         password = self.password_entry.get()
 
-        if (db_manager.CheckIfUserAlreadyExist(email=email, password=password)):
+        if (db_manager.Check.check_of_credentials_match(cursor=db_manager.cursor, conn=db_manager.conn, email=email, password=password)):
             self.app.GoToDashboard(email=email, password=password)
-            
-           
         else:
             self.warning_text.config(text="User doesn't exist", fg='red')
 

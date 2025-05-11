@@ -14,28 +14,23 @@ class DashboardMenu(tk.Frame):
 
         self.add_button("Statistic", "Statistic")
 
-        if Session.session_role == "Staff":
-            self.add_button("Create Request", "CreateRequest")
-            self.add_button("Create Car Rent", "RentCar")
+        #if Session.session_role == "Staff":
+            #self.add_button("Create Request", "CreateRequest")
+            #self.add_button("Create Car Rent", "RentCar")
             
 
-        if Session.session_role == "Manager":
-            self.add_button("Add Cars", "AddCars")
-            self.add_button("Edit Car Rental Price", "EditCarRentalPrice")
-            self.add_button("Delete Cars", "DeleteCars")
-            self.add_button("Car Maintenance", "CarMaintenance")
-            self.add_button("View Request", "ViewRequest")
-            self.add_button("Create Service", "CreateService")
+        #if Session.session_role == "Manager":
+            #self.add_button("Add Cars", "AddCars")
+            #self.add_button("Edit Car Rental Price", "EditCarRentalPrice")
+            #self.add_button("Delete Cars", "DeleteCars")
+            #self.add_button("Car Maintenance", "CarMaintenance")
+            #self.add_button("View Request", "ViewRequest")
+            #self.add_button("Create Service", "CreateService")
            
 
         if Session.session_role == "Admin":
             self.add_button("User Management", "StaffManagement")
-            self.add_button("Approve Cars", "CarApproval")
-            self.add_button("Approve Car Deletion", "CarDeletionApproval")
-            self.add_button("Approve Service", "ServiceApproval")
-
-        
-
+          
         self.logoutButton = tk.Button(
             self,
             text="Logout",
