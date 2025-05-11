@@ -180,7 +180,7 @@ class Get:
         return cursor.fetchall()
     
     @staticmethod
-    def get_all_cars_data_to_be_deleted(cursor):
+    def get_all_cars_plate_data_to_be_deleted(cursor):
         cursor.execute("""
             SELECT c.plate_number
             FROM cars c
@@ -188,7 +188,9 @@ class Get:
         """)
         
         return cursor.fetchall()
-        
+
+
+
     @staticmethod
     def get_car_data_by_license_plate(cursor, license_plate):
         cursor.execute("""
@@ -304,3 +306,40 @@ class Get:
         """)
         return cursor.fetchall()
     
+    @staticmethod
+    def get_all_license_plates_for_available_or_maintenance(cursor):
+        try:
+            cursor.execute("""
+                SELECT c.plate_number
+                FROM cars c
+                JOIN availability_statuses AS status ON c.availability_id = status.id
+                WHERE status.status IN ('Available', 'Maintenance')
+            """)
+
+            license_plates = cursor.fetchall()
+
+            return [plate[0] for plate in license_plates]
+        
+        except Exception as e:
+            raise Exception(f"Error fetching license plates for available or maintenance cars: {str(e)}")
+
+
+    @staticmethod
+    def get_car_availability_by_plate(cursor, license_plate):
+        try:
+            cursor.execute("""
+                SELECT status.status
+                FROM cars c
+                JOIN availability_statuses AS status ON c.availability_id = status.id
+                WHERE c.plate_number = %s
+            """, (license_plate,))
+
+            availability_status = cursor.fetchone()
+
+            if availability_status:
+                return availability_status[0]
+            else:
+                return None
+
+        except Exception as e:
+            raise Exception(f"Error fetching availability for car with plate {license_plate}: {str(e)}")

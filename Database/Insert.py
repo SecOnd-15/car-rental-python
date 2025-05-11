@@ -109,7 +109,8 @@ class Insert:
         availability_statuses = [
             "Unavailable",
             "Available",
-            "Pending"
+            "Pending",
+            "Maintenance"
         ]
         
         for status in availability_statuses:

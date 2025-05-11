@@ -75,7 +75,7 @@ class CarDeletionApprovalFrame(tk.Frame):
             self.warningText.config(text=str(e), fg="red")
 
     def refresh_plate_list(self, event):
-        plates = db_manager.Get.get_all_cars_data_to_be_deleted(cursor=db_manager.cursor)
+        plates = db_manager.Get.get_all_cars_plate_data_to_be_deleted(cursor=db_manager.cursor)
         self.plate_number_combobox["values"] = ["Select Plate Number"] + plates
         if not self.plate_number_combobox.get():
             self.plate_number_combobox.set("Select Plate Number")
