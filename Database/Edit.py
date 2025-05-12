@@ -106,3 +106,17 @@ class Edit:
         except Exception as e:
             raise Exception(f"Error updating service status to 'Available': {str(e)}")
             
+    @staticmethod
+    def edit_customer_reputation(conn, cursor, customer_id, reputation_to_add):
+        cursor.execute("USE vehicle_management")
+        
+        cursor.execute("""
+            UPDATE customers
+            SET reputation = reputation + %s
+            WHERE id = %s
+        """, (reputation_to_add, customer_id))
+        
+        conn.commit()
+
+        if cursor.rowcount == 0:
+            raise ValueError(f"No customer found with id {customer_id}.")

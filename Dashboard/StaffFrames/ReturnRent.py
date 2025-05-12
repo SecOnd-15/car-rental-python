@@ -15,6 +15,8 @@ class ReturnRentFrame(tk.Frame):
         self.user_score_penalty = 0
         # Adjust ra diri kung pila ang penalty ninyo
         self.car_penalty_cost = 500
+        self.rent_overdue_multiplier = 5
+        self.rent_damage_multiplier = 4
 
         tk.Label(self, text="Return Rental", font=("Helvetica", 26, "bold"), bg="#f0f4f8", fg="#333").pack(pady=10)
         self.warningText = tk.Label(self, text="", font=("Helvetica", 10), bg="#f0f4f8", fg="red")
@@ -146,6 +148,9 @@ class ReturnRentFrame(tk.Frame):
         try:
             self.validate_rent_inputs()
             self.receipt_maker()
+            customer_id = db_manager.Get.get_customer_id_by_rent_id(conn=db_manager.conn, cursor=db_manager.cursor,rent_id=self.rent_id_combobox.get().strip())
+            db_manager.Edit.edit_customer_reputation(conn=db_manager.conn, cursor=db_manager.cursor,customer_id=customer_id ,reputation_to_add=self.user_score_penalty)
+            self.clear()
         except ValueError as e:
             self.warningText.config(text=str(e), fg="red")
 
@@ -187,8 +192,6 @@ class ReturnRentFrame(tk.Frame):
                 if damage in self.damage_data:
                     receipt_content += f"         - {damage}: ${self.damage_data[damage]:.2f}\n"  # Consistent indentation
 
-       
-
         # Add services if any
         if services:
             if self.selected_damages:
@@ -224,8 +227,6 @@ class ReturnRentFrame(tk.Frame):
     def validate_rent_inputs(self):
         rent_id = self.rent_id_combobox.get().strip()
         return_date_str = self.return_date_entry.get().strip()
-        #TODO: REMOVE
-        overdue_days_str = self.overdue_days_var.get().strip()
         total_price_str = self.total_price_var.get().strip()
 
         if rent_id == "Select Rent ID" or not rent_id:
@@ -238,9 +239,6 @@ class ReturnRentFrame(tk.Frame):
             return_date = datetime.strptime(return_date_str, "%d/%m/%y")
         except ValueError:
             raise ValueError("Return date must be in DD/MM/YY format.")
-        
-        if not overdue_days_str.isdigit() or int(overdue_days_str) < 0:
-            raise ValueError("Overdue days must be a valid non-negative number.")
         
         
         if not total_price_str.startswith("$"):
@@ -343,11 +341,34 @@ class ReturnRentFrame(tk.Frame):
 
         penalty = Decimal(overdue_days * self.car_penalty_cost)
 
-        # the penalty formula
-        user_penalty = -((overdue_days + 1) * 5)
-        if user_penalty == 0:
-            user_penalty += 15 # Dili nani penalty HAHAHAHAHA PLUS NA
 
-        self.user_score_penalty = user_penalty
+        self.calculate_penalty(overdue_days=overdue_days)
 
         return penalty
+    
+    def calculate_penalty(self, overdue_days):
+        # the penalty formula
+        user_penalty = -((overdue_days) * self.rent_overdue_multiplier)
+        if user_penalty == 0:
+            user_penalty += 15 
+
+        damage_len = len(self.selected_damages) * self.rent_damage_multiplier
+        user_penalty -= damage_len
+        self.user_score_penalty = user_penalty
+
+
+    def clear(self):
+        
+        self.total_price = 0
+        self.selected_damages = []
+        self.user_score_penalty = 0
+        
+    
+        self.rent_id_combobox.set("Select Rent ID") 
+        self.return_date_entry.delete(0, tk.END) 
+        self.overdue_days_var.set("") 
+        self.total_price_var.set(f"${self.total_price:.2f}") 
+        self.load_data_from_db()
+
+        for damage, var in self.damage_vars.items():
+            var.set(0)

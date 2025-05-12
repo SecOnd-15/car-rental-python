@@ -605,3 +605,14 @@ class Get:
         services = cursor.fetchall()
 
         return services
+    
+    @staticmethod
+    def get_customer_id_by_rent_id(conn, cursor, rent_id):
+        cursor.execute("USE vehicle_management")
+        cursor.execute("""
+            SELECT r.customer_id
+            FROM rentals r
+            WHERE r.id = %s
+        """, (rent_id,))
+        result = cursor.fetchone()
+        return result[0] if result else None
