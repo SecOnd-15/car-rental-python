@@ -22,7 +22,7 @@ class CarMaintenanceFrame(tk.Frame):
 
         self.plate_number_label = tk.Label(form_frame, text="Car Plate Number", bg="#f0f0f0", font=("Helvetica", 12))
         self.plate_number_label.grid(row=0, column=0, padx=5, sticky="w")
-        self.plate_number_combobox = ttk.Combobox(form_frame, values=db_manager.Get.get_all_license_plates_for_available_or_maintenance(cursor=db_manager.cursor), state="readonly", font=("Helvetica", 20))
+        self.plate_number_combobox = ttk.Combobox(form_frame, values=["Select Plate"] + db_manager.Get.get_all_license_plates_for_available_or_maintenance(cursor=db_manager.cursor), state="readonly", font=("Helvetica", 20))
         self.plate_number_combobox.grid(row=1, column=0, pady=5, padx=10, sticky="w")
 
         self.availability_car_button = tk.Button(form_frame, text="Toggle Availability", font=("Helvetica", 14), bg="#00998F", fg="white", bd=0, relief="sunken", command=self.toggle_availability)
@@ -100,7 +100,7 @@ class CarMaintenanceFrame(tk.Frame):
             return
 
     def check_new_car_update_on_focus_in(self, event):
-        self.plate_number_combobox.config(values=db_manager.Get.get_all_license_plates_for_available_or_maintenance(cursor=db_manager.cursor))
+        self.plate_number_combobox.config(values=["Select Plate"] + db_manager.Get.get_all_license_plates_for_available_or_maintenance(cursor=db_manager.cursor), state="readonly", font=("Helvetica", 20))
 
     def get_car_data(self, event):
         selected_plate = self.plate_number_combobox.get()
