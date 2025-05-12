@@ -28,7 +28,7 @@ class RentCarFrame(tk.Frame):
 
         self.car_plate_label = tk.Label(form_frame, text="Car Plate Number:", bg="#f0f0f0", font=("Helvetica", 12))
         self.car_plate_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
-        self.car_plate_combobox = ttk.Combobox(form_frame, values=db_manager.Get.get_all_plate_numbers(cursor=db_manager.cursor), state="readonly", font=("Helvetica", 12))
+        self.car_plate_combobox = ttk.Combobox(form_frame, values=["Select plate"] + db_manager.Get.get_all_available_license_plate(cursor=db_manager.cursor), state="readonly", font=("Helvetica", 12))
         self.car_plate_combobox.grid(row=0, column=1, pady=5, padx=10, sticky="w")
         self.car_plate_combobox.bind("<<ComboboxSelected>>", self.on_plate_selected)
 
@@ -149,6 +149,16 @@ class RentCarFrame(tk.Frame):
         self.calculate_total_price()
 
     def on_plate_selected(self, event=None):
+       
+
+        selected_plate = self.car_plate_combobox.get()
+
+        if selected_plate == "Select plate":
+            self.load_data_from_db()
+            return
+
+
+
         # First show the selected car's details
         self.show_selected_plate_data(event)
         

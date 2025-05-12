@@ -323,6 +323,24 @@ class Get:
         except Exception as e:
             raise Exception(f"Error fetching license plates for available or maintenance cars: {str(e)}")
 
+    @staticmethod
+    def get_all_available_license_plate(cursor):
+        try:
+            cursor.execute("""
+                SELECT c.plate_number
+                FROM cars c
+                JOIN availability_statuses AS status ON c.availability_id = status.id
+                WHERE status.status IN ('Available')
+            """)
+
+            license_plates = cursor.fetchall()
+
+            return [plate[0] for plate in license_plates]
+        
+        except Exception as e:
+            raise Exception(f"Error fetching license plates for available or maintenance cars: {str(e)}")
+
+
 
     @staticmethod
     def get_car_availability_by_plate(cursor, license_plate):
