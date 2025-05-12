@@ -11,6 +11,15 @@ class Check:
         
         return True if user else False
     
+    @staticmethod
+    def check_customer_if_exist(conn, cursor, email):
+        cursor.execute("USE vehicle_management")
+    
+        cursor.execute("SELECT id FROM customers WHERE email = %s", (email,))
+        user = cursor.fetchone()
+        
+        return True if user else False
+        
 
     @staticmethod
     def check_of_credentials_match(conn, cursor, email, password):

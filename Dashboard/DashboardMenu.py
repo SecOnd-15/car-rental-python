@@ -11,6 +11,7 @@ class DashboardMenu(tk.Frame):
         self.app = app
         self.buttons = []
         self.last_pressed = None
+        self.need_refresh = {"RentCar"}
 
         # self.add_button("Statistic", "Statistic")
 
@@ -76,6 +77,11 @@ class DashboardMenu(tk.Frame):
                 btn.configure(bg="#FFFFFF", fg="#00998F")
                 self.last_pressed = btn
                 break
+
+        if frame_name in self.need_refresh:
+            print(frame_name)
+            print(self.need_refresh)
+            self.app.frames[frame_name].refresh()
 
         self.app.ChangeFrame(frame_name)
 

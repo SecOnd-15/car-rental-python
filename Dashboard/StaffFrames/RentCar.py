@@ -349,6 +349,9 @@ class RentCarFrame(tk.Frame):
         except ValueError as e:
             self.warningText.config(text=str(e), fg="red")
 
+    def refresh(self):
+        self.renter_email_combobox['values'] = db_manager.Get.get_all_customer_emails(cursor=db_manager.cursor)
+
 
     def clear(self):
         self.car_plate_combobox.set('')
@@ -368,3 +371,4 @@ class RentCarFrame(tk.Frame):
 
         self.warningText.config(text="")
         self.rental_period_var.set('')
+

@@ -379,3 +379,14 @@ class Insert:
                 """, (rental_id, service_id))
 
         conn.commit()
+
+    @staticmethod
+    def add_customer(conn, cursor, first_name, last_name, email, phone_number, address):
+        cursor.execute("USE vehicle_management")
+
+        cursor.execute("""
+            INSERT INTO customers (first_name, last_name, email, phone_number, address)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (first_name, last_name, email, phone_number, address))
+
+        conn.commit()
