@@ -120,3 +120,57 @@ class Edit:
 
         if cursor.rowcount == 0:
             raise ValueError(f"No customer found with id {customer_id}.")
+        
+    @staticmethod
+    def edit_car_availability_to_available(conn, cursor, rent_id):
+        cursor.execute("USE vehicle_management")
+
+        cursor.execute("""
+            SELECT r.car_id
+            FROM rentals r
+            WHERE r.id = %s
+        """, (rent_id,))
+        
+        result = cursor.fetchone()
+        
+        if not result:
+            raise ValueError(f"No rental found with id {rent_id}.")
+        
+        car_id = result[0]
+
+        cursor.execute("""
+            SELECT id
+            FROM availability_statuses
+            WHERE status = 'Available'
+        """)
+        
+        available_status = cursor.fetchone()
+        
+        if not available_status:
+            raise ValueError("No 'Available' status found in availability_statuses table.")
+        
+        available_status_id = available_status[0]
+
+        cursor.execute("""
+            UPDATE cars
+            SET availability_id = %s
+            WHERE id = %s
+        """, (available_status_id, car_id))
+
+        conn.commit()
+
+
+    @staticmethod
+    def edit_rental_as_returned(conn, cursor, rent_id):
+        cursor.execute("USE vehicle_management")
+        
+        cursor.execute("""
+            UPDATE rentals
+            SET status = 'Returned'
+            WHERE id = %s
+        """, (rent_id,))
+        
+        conn.commit()
+        
+        if cursor.rowcount == 0:
+            raise ValueError(f"No rental found with id {rent_id}.")

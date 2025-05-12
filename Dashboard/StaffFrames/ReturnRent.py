@@ -150,6 +150,15 @@ class ReturnRentFrame(tk.Frame):
             self.receipt_maker()
             customer_id = db_manager.Get.get_customer_id_by_rent_id(conn=db_manager.conn, cursor=db_manager.cursor,rent_id=self.rent_id_combobox.get().strip())
             db_manager.Edit.edit_customer_reputation(conn=db_manager.conn, cursor=db_manager.cursor,customer_id=customer_id ,reputation_to_add=self.user_score_penalty)
+
+            db_manager.Edit.edit_rental_as_returned(conn=db_manager.conn, cursor=db_manager.cursor,rent_id=self.rent_id_combobox.get().strip())
+            db_manager.Edit.edit_car_availability_to_available(conn=db_manager.conn, cursor=db_manager.cursor,rent_id=self.rent_id_combobox.get().strip())
+
+            self.warningText.config(
+                text="Rental successful! Please check your receipt on the desktop.",
+                fg="green"
+            )
+
             self.clear()
         except ValueError as e:
             self.warningText.config(text=str(e), fg="red")
@@ -187,21 +196,21 @@ class ReturnRentFrame(tk.Frame):
         ----------------------------------------\n
         """
         if self.selected_damages:
-            receipt_content += "Damage Charges:\n"  # Start the section without extra indentation
+            receipt_content += "Damage Charges:\n" 
             for damage in self.selected_damages:
                 if damage in self.damage_data:
-                    receipt_content += f"         - {damage}: ${self.damage_data[damage]:.2f}\n"  # Consistent indentation
+                    receipt_content += f"         - {damage}: ${self.damage_data[damage]:.2f}\n"  
 
-        # Add services if any
+      
         if services:
             if self.selected_damages:
-                receipt_content += "        Additional Services:\n"  # No leading spaces for title
+                receipt_content += "        Additional Services:\n" 
             else:
-                receipt_content += "Additional Services:\n"  # No leading spaces for title
+                receipt_content += "Additional Services:\n" 
             for service, cost in services:
-                receipt_content += f"         - {service}: ${cost:.2f}\n"  # Consistent indentation
+                receipt_content += f"         - {service}: ${cost:.2f}\n" 
 
-        # Calculate total after downpayment
+       
         total_after_downpayment = total - downpayment
 
         receipt_content += f"""
@@ -212,12 +221,12 @@ class ReturnRentFrame(tk.Frame):
         Thank you for choosing our service!
         """
 
-        # Define the path where the file will be saved
+       
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
         receipt_filename = f"Receipt_rent_{rent_id}.txt"
         receipt_path = os.path.join(desktop_path, receipt_filename)
 
-        # Write the receipt content to the text file
+        
         with open(receipt_path, 'w') as file:
             file.write(receipt_content)
 
