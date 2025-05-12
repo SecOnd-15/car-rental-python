@@ -126,14 +126,16 @@ class ReturnRentFrame(tk.Frame):
         self.return_button.pack(pady=10)
 
 
-        self.tree = ttk.Treeview(self, columns=("plate", "start_date", "end_date", "preliminary_total", "status"), show="headings")
+        self.tree = ttk.Treeview(self, columns=("id", "plate", "start_date", "end_date", "preliminary_total", "status"), show="headings")
 
+        self.tree.heading("id", text="Rental ID")
         self.tree.heading("plate", text="Plate Number")
         self.tree.heading("start_date", text="Rental Date")
         self.tree.heading("end_date", text="Return Date")
         self.tree.heading("preliminary_total", text="Preliminary Total")
         self.tree.heading("status", text="Status")
 
+        self.tree.column("id", width=100)
         self.tree.column("plate", width=140)
         self.tree.column("start_date", width=140)
         self.tree.column("end_date", width=140)
@@ -299,18 +301,36 @@ class ReturnRentFrame(tk.Frame):
         self.tree.delete(*self.tree.get_children())
         data = db_manager.Get.all_ongoing_rentals_with_preliminary(cursor=db_manager.cursor)
         for rental in data:
-            self.tree.insert("", "end", values=(rental[0], rental[1], rental[2], f"{rental[3]:.2f}", rental[4]))
+            self.tree.insert(
+                "", 
+                "end", 
+                values=tuple(str(value) for value in rental)
+            )
 
     def on_plate_selected(self, event=None):
         selected_id = self.rent_id_combobox.get()
         self.tree.delete(*self.tree.get_children())
+
         if selected_id == "Select Rent ID":
             self.load_data_from_db()
         else:
             data = db_manager.Get.get_ongoing_rental_by_id(cursor=db_manager.cursor, rental_id=selected_id)
+
             if data:
-                self.tree.insert("", "end", values=(data[0], data[1], data[2], f"${data[3]:.2f}", data[4]))
-                self.set_total_price(total_price=data[3])
+                self.tree.insert(
+                    "", 
+                    "end", 
+                    values=(
+                        str(data[0]),  # rental_id
+                        str(data[1]),  # plate_number
+                        str(data[2]),  # rental_date
+                        str(data[3]),  # return_date
+                        str(data[4]),  # preliminary_total
+                        str(data[5])   # status
+                    )
+                )
+                self.set_total_price(total_price=data[4])
+
 
     def refresh(self):
         self.load_data_from_db()
@@ -381,3 +401,5 @@ class ReturnRentFrame(tk.Frame):
 
         for damage, var in self.damage_vars.items():
             var.set(0)
+
+        self.rent_id_combobox["values"] = ["Select Rent ID"] + db_manager.Get.all_ongoing_rental_ids(cursor=db_manager.cursor)

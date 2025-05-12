@@ -497,6 +497,7 @@ class Get:
     def all_ongoing_rentals_with_preliminary(cursor):
         query = """
             SELECT 
+                rentals.id,
                 cars.plate_number,
                 rentals.rental_date,
                 rentals.return_date,
@@ -513,6 +514,7 @@ class Get:
     def get_ongoing_rental_by_id(cursor, rental_id):
         query = """
             SELECT 
+                rentals.id,
                 cars.plate_number,
                 rentals.rental_date,
                 rentals.return_date,
@@ -524,8 +526,8 @@ class Get:
         """
         cursor.execute(query, (rental_id,))
         return cursor.fetchone()
-    
-
+        
+        return cursor.fetchone()
     @staticmethod
     def all_ongoing_rental_ids(cursor):
         query = """
