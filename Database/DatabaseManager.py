@@ -185,6 +185,7 @@ class DatabaseManager:
                 rental_date VARCHAR(255) NOT NULL,
                 return_date VARCHAR(255),
                 total_amount DECIMAL(10, 2) NOT NULL,
+                status VARCHAR(255) DEFAULT 'ongoing',
                 downpayment_amount DECIMAL(10, 2) DEFAULT 0,
                 FOREIGN KEY (customer_id) REFERENCES customers(id)
                     ON DELETE CASCADE

@@ -16,6 +16,7 @@ from Dashboard.AdminFrames.ServiceApproval import ServiceApprovalFrame
 
 from Dashboard.StaffFrames.AddCustomer import AddCustomerFrame
 from Dashboard.StaffFrames.RentCar import RentCarFrame
+from Dashboard.StaffFrames.ReturnRent import ReturnRentFrame
 
 class Dashboard(tk.Tk):
     def __init__(self):
@@ -63,7 +64,8 @@ class Dashboard(tk.Tk):
             "ServiceApproval": ServiceApprovalFrame(self.mainFrame, app=self),
             "CarMaintenance": CarMaintenanceFrame(self.mainFrame, app=self),
             "RentCar": RentCarFrame(self.mainFrame, app=self),
-            "AddCustomer": AddCustomerFrame(self.mainFrame, app=self)
+            "AddCustomer": AddCustomerFrame(self.mainFrame, app=self),
+            "ReturnRent": ReturnRentFrame(self.mainFrame, app=self)
         }
 
        
