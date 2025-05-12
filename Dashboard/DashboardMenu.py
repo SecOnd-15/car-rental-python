@@ -80,8 +80,6 @@ class DashboardMenu(tk.Frame):
                 break
 
         if frame_name in self.need_refresh:
-            print(frame_name)
-            print(self.need_refresh)
             self.app.frames[frame_name].refresh()
 
         self.app.ChangeFrame(frame_name)
