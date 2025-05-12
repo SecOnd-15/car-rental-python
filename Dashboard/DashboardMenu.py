@@ -11,7 +11,7 @@ class DashboardMenu(tk.Frame):
         self.app = app
         self.buttons = []
         self.last_pressed = None
-        self.need_refresh = {"RentCar"}
+        self.need_refresh = {"RentCar", "ReturnRent"}
 
         # self.add_button("Statistic", "Statistic")
 

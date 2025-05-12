@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from Database.DatabaseInstance import db_manager
+from decimal import Decimal
+from datetime import datetime
+import os
 
 class ReturnRentFrame(tk.Frame):
     def __init__(self, master=None, app=None, **kwargs):
@@ -8,6 +11,10 @@ class ReturnRentFrame(tk.Frame):
         self.app = app
         self.configure(bg="#f0f0f0")
         self.total_price = 0
+        self.selected_damages = []
+        self.user_score_penalty = 0
+        # Adjust ra diri kung pila ang penalty ninyo
+        self.car_penalty_cost = 500
 
         tk.Label(self, text="Return Rental", font=("Helvetica", 26, "bold"), bg="#f0f4f8", fg="#333").pack(pady=10)
         self.warningText = tk.Label(self, text="", font=("Helvetica", 10), bg="#f0f4f8", fg="red")
@@ -15,35 +22,36 @@ class ReturnRentFrame(tk.Frame):
 
         form_frame = tk.Frame(self, bg="#f0f0f0")
         form_frame.pack(pady=10)
-        
+
         self.rent_id_label = tk.Label(form_frame, text="Rent ID:", bg="#f0f0f0", font=("Helvetica", 12))
         self.rent_id_label.grid(row=0, column=0, padx=10, pady=5, sticky="e")
         self.rent_id_combobox = ttk.Combobox(
             form_frame,
-            values=["Select Rent ID"],
+            values=["Select Rent ID"] + db_manager.Get.all_ongoing_rental_ids(cursor=db_manager.cursor),
             state="readonly",
             font=("Helvetica", 12)
         )
         self.rent_id_combobox.grid(row=0, column=1, pady=5, padx=10, sticky="w")
+        self.rent_id_combobox.bind("<<ComboboxSelected>>", self.on_plate_selected)
 
         self.return_date_label = tk.Label(form_frame, text="Return Date (DD/MM/YY):", bg="#f0f0f0", font=("Helvetica", 12))
         self.return_date_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
         self.return_date_entry = tk.Entry(form_frame, font=("Helvetica", 12))
         self.return_date_entry.grid(row=1, column=1, pady=5, padx=10, sticky="w")
+        self.return_date_entry.bind("<KeyRelease>", self.on_date_type)
 
-        self.rental_period_label = tk.Label(form_frame, text="Rental Period (Days):", bg="#f0f0f0", font=("Helvetica", 12))
-        self.rental_period_label.grid(row=3, column=0, padx=10, pady=5, sticky="e")
-        self.rental_period_var = tk.StringVar()
-        self.rental_period_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken", state="readonly", textvariable=self.rental_period_var)
-        self.rental_period_entry.grid(row=3, column=1, pady=5, padx=10, sticky="w")
+        self.overdue_days_label = tk.Label(form_frame, text="Overdue Days:", bg="#f0f0f0", font=("Helvetica", 12))
+        self.overdue_days_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
+        self.overdue_days_var = tk.StringVar()
+        self.overdue_days_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken", state="readonly", textvariable=self.overdue_days_var)
+        self.overdue_days_entry.grid(row=2, column=1, pady=5, padx=10, sticky="w")
 
         self.total_price_label = tk.Label(form_frame, text="Total Price ($):", bg="#f0f0f0", font=("Helvetica", 12))
-        self.total_price_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
+        self.total_price_label.grid(row=3, column=0, padx=10, pady=5, sticky="e")
         self.total_price_var = tk.StringVar()
         self.total_price_var.set(f"${self.total_price:.2f}")
         self.total_price_entry = tk.Entry(form_frame, font=("Helvetica", 12), bd=0.5, relief="sunken", state="readonly", textvariable=self.total_price_var)
-        self.total_price_entry.grid(row=2, column=1, pady=5, padx=10, sticky="w")
-
+        self.total_price_entry.grid(row=3, column=1, pady=5, padx=10, sticky="w")
 
         damage_container = tk.Frame(form_frame, bg="#e0e0e0")
         damage_container.grid(row=0, column=2, rowspan=6, padx=10, pady=5, sticky="nsew")
@@ -63,7 +71,7 @@ class ReturnRentFrame(tk.Frame):
         damage_title = tk.Label(self.damage_frame, text="Reported Damages:", bg="#e0e0e0", font=("Helvetica", 12, "bold"))
         damage_title.grid(row=0, column=0, columnspan=3, sticky="w", pady=(0, 10))
 
-        damage_data = {
+        self.damage_data = {
             "Scratch": 50.00,
             "Dented Bumper": 100.00,
             "Broken Mirror": 75.00,
@@ -93,7 +101,7 @@ class ReturnRentFrame(tk.Frame):
 
         self.damage_vars = {}
 
-        for i, (damage, price) in enumerate(damage_data.items()):
+        for i, (damage, price) in enumerate(self.damage_data.items()):
             label = tk.Label(self.damage_frame, text=f"{damage} (${price:.2f}):", bg="#e0e0e0", font=("Helvetica", 11))
             label.grid(row=i + 1, column=0, sticky="w", pady=2)
 
@@ -101,66 +109,193 @@ class ReturnRentFrame(tk.Frame):
             self.damage_vars[damage] = var
 
             rb_no = tk.Radiobutton(
-                self.damage_frame, text="No", variable=var, value=0,
+                self.damage_frame, text="No", variable=var, value=0, command=self.update_selected_damages,
                 bg="#e0e0e0", font=("Helvetica", 10)
             )
             rb_no.grid(row=i + 1, column=1, sticky="w", padx=(10, 0))
 
             rb_yes = tk.Radiobutton(
-                self.damage_frame, text="Yes", variable=var, value=1,
+                self.damage_frame, text="Yes", variable=var, value=1, command=self.update_selected_damages,
                 bg="#e0e0e0", font=("Helvetica", 10)
             )
             rb_yes.grid(row=i + 1, column=2, sticky="w")
 
-
-
-        self.return_button = tk.Button(self, text="Mark as Returned", font=("Helvetica", 14), bg="#00998F", fg="white")
+        self.return_button = tk.Button(self, text="Mark as Returned", font=("Helvetica", 14), bg="#00998F",bd=0, fg="white", command=self.edit_button_pressed)
         self.return_button.pack(pady=10)
 
-        self.tree = ttk.Treeview(self, columns=("Plate", "Start", "End", "Total", "Status"), show="headings")
-        for col in ("Plate", "Start", "End", "Total", "Status"):
-            self.tree.heading(col, text=col)
-            self.tree.column(col, width=140)
+
+        self.tree = ttk.Treeview(self, columns=("plate", "start_date", "end_date", "preliminary_total", "status"), show="headings")
+
+        self.tree.heading("plate", text="Plate Number")
+        self.tree.heading("start_date", text="Rental Date")
+        self.tree.heading("end_date", text="Return Date")
+        self.tree.heading("preliminary_total", text="Preliminary Total")
+        self.tree.heading("status", text="Status")
+
+        self.tree.column("plate", width=140)
+        self.tree.column("start_date", width=140)
+        self.tree.column("end_date", width=140)
+        self.tree.column("preliminary_total", width=140)
+        self.tree.column("status", width=140)
+
         self.tree.pack(fill="both", expand=True, padx=10, pady=10)
 
+        self.load_data_from_db()
+
+    def edit_button_pressed(self):
+        try:
+            self.validate_rent_inputs()
+            self.receipt_maker()
+        except ValueError as e:
+            self.warningText.config(text=str(e), fg="red")
+
+    def receipt_maker(self):
 
         
+        receipt_content = """Receipt
+        ---------------------------
+        Item 1: $10.00
+        Item 2: $15.50
+        Item 3: $7.99
 
+        Total: $33.49
+        ---------------------------
+        Thank you for your purchase!
+        """
+
+        desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
+        receipt_filename = "receipt.txt"
+        receipt_path = os.path.join(desktop_path, receipt_filename)
+        with open(receipt_path, 'w') as file:
+            file.write(receipt_content)
+
+
+    def validate_rent_inputs(self):
+        rent_id = self.rent_id_combobox.get().strip()
+        return_date_str = self.return_date_entry.get().strip()
+        overdue_days_str = self.overdue_days_var.get().strip()
+        total_price_str = self.total_price_var.get().strip()
+
+        if rent_id == "Select Rent ID" or not rent_id:
+            raise ValueError("Rent ID is required.")
+
+        if not return_date_str:
+            raise ValueError("Return date is required.")
         
+        try:
+            return_date = datetime.strptime(return_date_str, "%d/%m/%y")
+        except ValueError:
+            raise ValueError("Return date must be in DD/MM/YY format.")
+        
+        if not overdue_days_str.isdigit() or int(overdue_days_str) < 0:
+            raise ValueError("Overdue days must be a valid non-negative number.")
+        
+        
+        if not total_price_str.startswith("$"):
+            raise ValueError("Total price is not set correctly.")
+        
+        try:
+            total_price = float(total_price_str.strip("$"))
+        except ValueError:
+            raise ValueError("Total price must be a valid number.")
+
+        if total_price < 0:
+            raise ValueError("Total price cannot be negative.")
+
+
+
+    def on_date_type(self, event=None):
+        self.calculate_total()
+
+    def calculate_total(self):
+        selected_id = self.rent_id_combobox.get()
+        if selected_id != "Select Rent ID":
+            rental_data = db_manager.Get.get_ongoing_rental_by_id(cursor=db_manager.cursor, rental_id=selected_id)
+            preliminary_total = rental_data[3]
+
+            total_damage_cost = Decimal(self.calculate_damage_cost())
+            penalty = self.calculate_date_punishment()
+
+            final_total = preliminary_total + total_damage_cost + penalty
+            self.set_total_price(final_total)
+
+    def update_selected_damages(self):
+        self.selected_damages = [
+            damage for damage, var in self.damage_vars.items() if var.get() == 1
+        ]
+        self.calculate_total()
+
+    def calculate_damage_cost(self):
+        total_damage = 0
+        for damage, price in self.damage_data.items():
+            if self.damage_vars[damage].get() == 1:
+                total_damage += price
+        return total_damage
+
+    def set_total_price(self, total_price):
+        self.total_price = total_price
+        self.total_price_var.set(f"${total_price:.2f}")
+
+    def load_data_from_db(self):
+        self.tree.delete(*self.tree.get_children())
+        data = db_manager.Get.all_ongoing_rentals_with_preliminary(cursor=db_manager.cursor)
+        for rental in data:
+            self.tree.insert("", "end", values=(rental[0], rental[1], rental[2], f"{rental[3]:.2f}", rental[4]))
+
+    def on_plate_selected(self, event=None):
+        selected_id = self.rent_id_combobox.get()
+        self.tree.delete(*self.tree.get_children())
+        if selected_id == "Select Rent ID":
+            self.load_data_from_db()
+        else:
+            data = db_manager.Get.get_ongoing_rental_by_id(cursor=db_manager.cursor, rental_id=selected_id)
+            if data:
+                self.tree.insert("", "end", values=(data[0], data[1], data[2], f"${data[3]:.2f}", data[4]))
+                self.set_total_price(total_price=data[3])
 
     def refresh(self):
-        self.warningText.config(text="", fg="red")
-        self.tree.delete(*self.tree.get_children())
-        emails = db_manager.Get.get_all_customer_emails(cursor=db_manager.cursor)
-        self.customer_email_combobox['values'] = emails
-        self.customer_email_combobox.set("")
+        self.load_data_from_db()
+        ongoing_rental_ids = db_manager.Get.all_ongoing_rental_ids(cursor=db_manager.cursor)
+        self.rent_id_combobox["values"] = ["Select Rent ID"] + ongoing_rental_ids
 
-    def load_rental_info(self, event=None):
-        self.tree.delete(*self.tree.get_children())
-        email = self.customer_email_var.get()
-        rentals = db_manager.Get.get_active_rentals_by_email(cursor=db_manager.cursor, email=email)
-        for rental in rentals:
-            self.tree.insert("", "end", values=(
-                rental['plate_number'],
-                rental['rental_date'],
-                rental['return_date'],
-                f"${rental['total_amount']:.2f}",
-                rental['status']
-            ))
 
-    def mark_returned(self):
-        selected = self.tree.selection()
-        if not selected:
-            self.warningText.config(text="Please select a rental.", fg="red")
-            return
-        item = self.tree.item(selected[0])
-        plate = item['values'][0]
-        email = self.customer_email_var.get()
+    def calculate_date_punishment(self):
+        rental_id = self.rent_id_combobox.get()
+        
+        rental_date = db_manager.Get.get_rental_date(cursor=db_manager.cursor, rental_id=rental_id)
+        return_date = db_manager.Get.get_rental_return_date(cursor=db_manager.cursor, rental_id=rental_id)
 
+        # Convert to datetime
+        start_date = datetime.strptime(rental_date, "%d/%m/%y")
+        end_date = datetime.strptime(return_date, "%d/%m/%y")
+
+        unplanned_date_str = self.return_date_entry.get()
         try:
-            db_manager.Edit.mark_rental_returned(cursor=db_manager.cursor, conn=db_manager.conn, plate_number=plate, email=email)
-            db_manager.Edit.edit_car_availability(cursor=db_manager.cursor, conn=db_manager.conn, licensePlate=plate, newStatus="Available")
-            self.warningText.config(text="Rental marked as returned.", fg="green")
-            self.load_rental_info()
-        except Exception as e:
-            self.warningText.config(text=str(e), fg="red")
+            unplanned_date = datetime.strptime(unplanned_date_str, "%d/%m/%y")
+        except ValueError:
+            return Decimal(0)
+
+        planned_rental_period = max((end_date - start_date).days, 1)
+
+        if planned_rental_period == 0:
+            planned_rental_period = 1  # Ensure the planned period is at least 1 day
+
+        unplanned_rental_period = (unplanned_date - start_date).days
+
+        overdue_days = max(0, unplanned_rental_period - planned_rental_period)
+        
+        if unplanned_date > end_date:
+            overdue_days = (unplanned_date - end_date).days
+
+        self.overdue_days_var.set(str(overdue_days))
+
+        penalty = Decimal(overdue_days * self.car_penalty_cost)
+
+        # the penalty formula
+        user_penalty = -((overdue_days + 1) * 5)
+        if user_penalty == 0:
+            user_penalty += 15 # Dili nani penalty HAHAHAHAHA PLUS NA
+
+        self.self.user_score_penalty = user_penalty
+
+        return penalty

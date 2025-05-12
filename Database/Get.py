@@ -477,3 +477,76 @@ class Get:
     def get_all_customer_emails(cursor):
         cursor.execute("SELECT email FROM customers")
         return [row[0] for row in cursor.fetchall()]
+    
+    def get_all_rentals(self, cursor):
+        query = """
+            SELECT 
+                cars.plate_number,        
+                rentals.rental_date,
+                rentals.return_date,   
+                rentals.total_amount,  
+                rentals.status    
+            FROM rentals
+            JOIN cars ON rentals.car_id = cars.id
+            ORDER BY rentals.rental_date DESC
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+    
+    @staticmethod
+    def all_ongoing_rentals_with_preliminary(cursor):
+        query = """
+            SELECT 
+                cars.plate_number,
+                rentals.rental_date,
+                rentals.return_date,
+                rentals.preliminary_total,
+                rentals.status
+            FROM rentals
+            JOIN cars ON rentals.car_id = cars.id
+            WHERE rentals.status = 'ongoing'
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+    
+    @staticmethod
+    def get_ongoing_rental_by_id(cursor, rental_id):
+        query = """
+            SELECT 
+                cars.plate_number,
+                rentals.rental_date,
+                rentals.return_date,
+                rentals.preliminary_total,
+                rentals.status
+            FROM rentals
+            JOIN cars ON rentals.car_id = cars.id
+            WHERE rentals.status = 'ongoing' AND rentals.id = %s
+        """
+        cursor.execute(query, (rental_id,))
+        return cursor.fetchone()
+    
+
+    @staticmethod
+    def all_ongoing_rental_ids(cursor):
+        query = """
+            SELECT 
+                rentals.id
+            FROM rentals
+            WHERE rentals.status = 'ongoing'
+        """
+        cursor.execute(query)
+        return [row[0] for row in cursor.fetchall()]
+    
+    @staticmethod
+    def get_rental_return_date(cursor, rental_id):
+        query = "SELECT return_date FROM rentals WHERE id = %s"
+        cursor.execute(query, (rental_id,))
+        result = cursor.fetchone()
+        return result[0] if result else None
+
+    @staticmethod
+    def get_rental_date(cursor, rental_id):
+        query = "SELECT rental_date FROM rentals WHERE id = %s"
+        cursor.execute(query, (rental_id,))
+        result = cursor.fetchone()
+        return result[0] if result else None
