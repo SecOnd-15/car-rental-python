@@ -81,7 +81,7 @@ class RentCarFrame(tk.Frame):
         self.end_date_entry.bind("<FocusOut>", self.calculate_total_price)
         self.end_date_entry.bind("<KeyRelease>", self.calculate_total_price)
 
-        self.total_price_label = tk.Label(form_frame, text="Total Price ($):", bg="#f0f0f0", font=("Helvetica", 12))
+        self.total_price_label = tk.Label(form_frame, text="Preliminary Total ($):", bg="#f0f0f0", font=("Helvetica", 12))
         self.total_price_label.grid(row=7, column=0, padx=10, pady=5, sticky="e")
         self.total_price_var = tk.StringVar()
         self.total_price_var.set(f"${self.total_price:.2f}")

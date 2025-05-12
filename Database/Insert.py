@@ -362,9 +362,9 @@ class Insert:
 
         # Insert rental
         cursor.execute("""
-            INSERT INTO rentals (customer_id, car_id, rental_date, return_date, total_amount, downpayment_amount)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (customer_id, car_id, rental_date, return_date, total_amount, downpayment_amount))
+            INSERT INTO rentals (customer_id, car_id, rental_date, return_date, total_amount, preliminary_total, downpayment_amount)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+        """, (customer_id, car_id, rental_date, return_date, total_amount, total_amount, downpayment_amount))
         rental_id = cursor.lastrowid
 
         # Link services to rental
