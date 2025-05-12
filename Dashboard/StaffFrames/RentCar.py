@@ -36,11 +36,18 @@ class RentCarFrame(tk.Frame):
         
         self.renter_name_label = tk.Label(form_frame, text="Renter's Full Name:", bg="#f0f0f0", font=("Helvetica", 12))
         self.renter_name_label.grid(row=1, column=0, padx=10, pady=5, sticky="e")
-        self.customer_names = db_manager.Get.get_all_customer_names(cursor=db_manager.cursor)
-        self.renter_name_var = tk.StringVar()
-        self.renter_name_combobox = ttk.Combobox(form_frame, textvariable=self.renter_name_var, font=("Helvetica", 12), state="readonly")
-        self.renter_name_combobox['values'] = self.customer_names
-        self.renter_name_combobox.grid(row=1, column=1, pady=5, padx=10, sticky="w")
+
+        self.customer_emails = db_manager.Get.get_all_customer_emails(cursor=db_manager.cursor)
+
+        self.renter_email_var = tk.StringVar()
+        self.renter_email_combobox = ttk.Combobox(
+            form_frame,
+            textvariable=self.renter_email_var,
+            font=("Helvetica", 12),
+            state="readonly"
+        )
+        self.renter_email_combobox['values'] = self.customer_emails
+        self.renter_email_combobox.grid(row=1, column=1, pady=5, padx=10, sticky="w")
 
         self.payment_method_label = tk.Label(form_frame, text="Payment Method:", bg="#f0f0f0", font=("Helvetica", 12))
         self.payment_method_label.grid(row=2, column=0, padx=10, pady=5, sticky="e")
@@ -252,58 +259,61 @@ class RentCarFrame(tk.Frame):
             self.total_price_var.set(f"${self.total_price:.2f}")
 
     def validate_rent_inputs(self):
-        if not self.car_plate_combobox.get():
+        plate = self.car_plate_combobox.get().strip()
+        renter = self.renter_email_combobox.get().strip()
+        start_date_str = self.start_date_entry.get().strip()
+        end_date_str = self.end_date_entry.get().strip()
+        payment = self.payment_method_combobox.get().strip()
+
+        if not plate:
             raise ValueError("Car plate number is required.")
-        if not self.renter_name_combobox.get():
-            raise ValueError("Renter's full name is required.")
         
-        start_date_str = self.start_date_entry.get()
+        if not renter:
+            raise ValueError("Renter's email is required.")
+        
         if not start_date_str:
             raise ValueError("Start date is required.")
         
-        end_date_str = self.end_date_entry.get()
         if not end_date_str:
             raise ValueError("End date is required.")
+
         try:
             start_date = datetime.strptime(start_date_str, "%d/%m/%y")
         except ValueError:
             raise ValueError("Start date must be in DD/MM/YY format.")
-        
+
         try:
             end_date = datetime.strptime(end_date_str, "%d/%m/%y")
         except ValueError:
             raise ValueError("End date must be in DD/MM/YY format.")
-        
+
         if end_date < start_date:
             raise ValueError("End date cannot be before start date.")
         
-        if not self.payment_method_combobox.get():
+        if not payment:
             raise ValueError("Payment method is required.")
 
     def rent_car_button(self):
         try:
             self.validate_rent_inputs()
 
-            full_name = self.renter_name_combobox.get()
+            customer_email = self.renter_email_combobox.get().strip()
             car_plate = self.car_plate_combobox.get().strip()
 
-            reputation = db_manager.Get.get_user_reputation(cursor=db_manager.cursor, full_name=full_name)
-
+            # Optional: reputation check
+            reputation = db_manager.Get.get_user_reputation_by_email(cursor=db_manager.cursor, email=customer_email)
             if reputation is not None and reputation < 20:
                 response = messagebox.askyesno("Bad Reputation Warning",
                                             "This customer has a bad reputation (below 20). Do you still want to proceed?")
                 if not response:
                     return
 
-            rental_date = self.start_date_entry.get()
-            return_date = self.end_date_entry.get()
+            rental_date = self.start_date_entry.get().strip()
+            return_date = self.end_date_entry.get().strip()
             total_amount = float(re.sub(r'[^\d.]', '', self.total_price_entry.get()))
 
-            payment_method = self.payment_method_combobox.get()
-            if payment_method != "Down Payment":
-                downpayment_amount = 0.0
-            else:
-                downpayment_amount = float(self.downpayment_spinbox.get())
+            payment_method = self.payment_method_combobox.get().strip()
+            downpayment_amount = float(self.downpayment_spinbox.get()) if payment_method == "Down Payment" else 0.0
 
             selected_services = [
                 service for service, var in self.service_vars.items() if var.get() == 1
@@ -312,7 +322,7 @@ class RentCarFrame(tk.Frame):
             db_manager.Insert.add_rental(
                 conn=db_manager.conn,
                 cursor=db_manager.cursor,
-                full_name=full_name,
+                customer_email=customer_email,
                 plate_number=car_plate,
                 rental_date=rental_date,
                 return_date=return_date,
@@ -331,29 +341,30 @@ class RentCarFrame(tk.Frame):
             self.warningText.config(text="Successful Rent!", fg="green")
             self.clear()
 
+            self.car_plate_combobox["values"] = ["Select plate"] + db_manager.Get.get_all_available_license_plate(cursor=db_manager.cursor)
+       
+        
+            
+
         except ValueError as e:
             self.warningText.config(text=str(e), fg="red")
 
 
-
     def clear(self):
         self.car_plate_combobox.set('')
-        self.renter_name_combobox.set('')
+        self.renter_email_combobox.set('')
 
-        self.start_date_entry.delete(0, tk.END)
-        self.end_date_entry.delete(0, tk.END)
+        for entry in [self.start_date_entry, self.end_date_entry]:
+            entry.delete(0, tk.END)
 
         self.payment_method_combobox.set('')
-        # self.downpayment_spinbox.set(0)
+        self.downpayment_spinbox.configure(state="disabled")
 
         self.total_price = 0
         self.total_price_var.set(f"${self.total_price:.2f}")
 
-        self.downpayment_spinbox.configure(state="disabled")
-
         for var in self.service_vars.values():
-            var.set(0)  # Setting to 0 means "No"
+            var.set(0)
 
         self.warningText.config(text="")
-
         self.rental_period_var.set('')

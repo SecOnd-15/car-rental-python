@@ -17,6 +17,7 @@ class DashboardMenu(tk.Frame):
         if Session.session_role == "Staff":
             #self.add_button("Create Request", "CreateRequest")
             self.add_button("Create Car Rent", "RentCar")
+            self.add_button("Add Customer", "AddCustomer")
             
 
         if Session.session_role == "Manager":

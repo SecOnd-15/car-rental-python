@@ -342,46 +342,34 @@ class Insert:
             raise Exception(f"Error inserting service: {str(e)}")
         
     @staticmethod
-    def add_rental(conn, cursor, full_name, plate_number, rental_date, return_date, total_amount, downpayment_amount, selected_services):
+    def add_rental(conn, cursor, customer_email, plate_number, rental_date, return_date,
+                total_amount, downpayment_amount, selected_services):
         cursor.execute("USE vehicle_management")
-        
-        # Split full name to first and last
-        name_parts = full_name.strip().split(" ", 1)
-        if len(name_parts) < 2:
-            raise ValueError("Full name must include both first and last name.")
-        first_name, last_name = name_parts
 
-        # Get customer ID
-        cursor.execute("""
-            SELECT id FROM customers WHERE first_name = %s AND last_name = %s
-        """, (first_name, last_name))
+        # Get customer ID from email
+        cursor.execute("SELECT id FROM customers WHERE email = %s", (customer_email,))
         customer_row = cursor.fetchone()
         if not customer_row:
             raise ValueError("Customer not found.")
         customer_id = customer_row[0]
 
-        # Get car ID
-        cursor.execute("""
-            SELECT id FROM cars WHERE plate_number = %s
-        """, (plate_number,))
+        # Get car ID from plate number
+        cursor.execute("SELECT id FROM cars WHERE plate_number = %s", (plate_number,))
         car_row = cursor.fetchone()
         if not car_row:
             raise ValueError("Car not found.")
         car_id = car_row[0]
 
-        # Insert into rentals
+        # Insert rental
         cursor.execute("""
             INSERT INTO rentals (customer_id, car_id, rental_date, return_date, total_amount, downpayment_amount)
             VALUES (%s, %s, %s, %s, %s, %s)
         """, (customer_id, car_id, rental_date, return_date, total_amount, downpayment_amount))
-
         rental_id = cursor.lastrowid
 
-        # Insert into rental_services for each selected service
+        # Link services to rental
         for service_name in selected_services:
-            cursor.execute("""
-                SELECT id FROM services WHERE service_name = %s
-            """, (service_name,))
+            cursor.execute("SELECT id FROM services WHERE service_name = %s", (service_name,))
             service_row = cursor.fetchone()
             if service_row:
                 service_id = service_row[0]

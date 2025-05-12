@@ -444,5 +444,36 @@ class Get:
         except Exception as e:
             raise Exception(f"Error fetching reputation for customer '{full_name}': {str(e)}")
         
+    @staticmethod
+    def get_user_reputation_by_email(cursor, email):
+        cursor.execute("SELECT reputation FROM customers WHERE email = %s", (email,))
+        row = cursor.fetchone()
+        if row:
+            return row[0]
+        return None
 
+        
+
+    @staticmethod
+    def get_all_customers(cursor):
+        cursor.execute("""
+            SELECT first_name, last_name, email, phone_number, address
+            FROM customers
+        """)
+        rows = cursor.fetchall()
+
+        return [
+            {
+                "first_name": row[0],
+                "last_name": row[1],
+                "email": row[2],
+                "phone_number": row[3],
+                "address": row[4]
+            }
+            for row in rows
+        ]
     
+    @staticmethod
+    def get_all_customer_emails(cursor):
+        cursor.execute("SELECT email FROM customers")
+        return [row[0] for row in cursor.fetchall()]
