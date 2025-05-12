@@ -550,3 +550,58 @@ class Get:
         cursor.execute(query, (rental_id,))
         result = cursor.fetchone()
         return result[0] if result else None
+    
+    @staticmethod
+    def get_customer_full_name_by_rent_id(conn, cursor, rent_id):
+        cursor.execute("USE vehicle_management")
+        cursor.execute("""
+            SELECT CONCAT(c.first_name, ' ', c.last_name) AS full_name
+            FROM rentals r
+            JOIN customers c ON r.customer_id = c.id
+            WHERE r.id = %s
+        """, (rent_id,))
+        result = cursor.fetchone()
+        return result[0] if result else None
+    
+    @staticmethod
+    def get_services_by_rent_id(conn, cursor, rent_id):
+        cursor.execute("USE vehicle_management")
+        cursor.execute("""
+            SELECT s.id, s.service_name  -- Adjust column names based on your schema
+            FROM rental_services rs
+            JOIN services s ON rs.service_id = s.id
+            WHERE rs.rental_id = %s
+        """, (rent_id,))
+        
+        services = cursor.fetchall()
+        
+        service_map = {service[0]: service[1] for service in services}
+        
+        return service_map
+    
+    @staticmethod
+    def get_downpayment_by_rent_id(conn, cursor, rent_id):
+        cursor.execute("USE vehicle_management")
+        cursor.execute("""
+            SELECT downpayment_amount
+            FROM rentals
+            WHERE id = %s
+        """, (rent_id,))
+        
+        result = cursor.fetchone()
+        
+        return result[0] if result else None
+    
+    @staticmethod
+    def get_services_by_rent_id_with_price(conn, cursor, rent_id):
+        cursor.execute("USE vehicle_management")
+        cursor.execute("""
+            SELECT s.service_name, s.price
+            FROM rental_services rs
+            JOIN services s ON rs.service_id = s.id
+            WHERE rs.rental_id = %s
+        """, (rent_id,))
+        
+        services = cursor.fetchall()
+
+        return services

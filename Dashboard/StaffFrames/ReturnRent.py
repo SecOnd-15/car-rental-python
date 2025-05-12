@@ -150,29 +150,81 @@ class ReturnRentFrame(tk.Frame):
             self.warningText.config(text=str(e), fg="red")
 
     def receipt_maker(self):
+        rent_id = self.rent_id_combobox.get().strip()
 
+        full_name = db_manager.Get.get_customer_full_name_by_rent_id(conn=db_manager.conn, cursor=db_manager.cursor, rent_id=rent_id)
+        starting_date = db_manager.Get.get_rental_date(cursor=db_manager.cursor, rental_id=rent_id)
+        return_date = self.return_date_entry.get().strip()
+
+        start_date = datetime.strptime(starting_date, "%d/%m/%y")
+        end_date = datetime.strptime(return_date, "%d/%m/%y")
+
+        days_rented = (end_date - start_date).days
+
+        services = db_manager.Get.get_services_by_rent_id_with_price(conn=db_manager.conn, cursor=db_manager.cursor, rent_id=rent_id)
+
+        downpayment = float(db_manager.Get.get_downpayment_by_rent_id(conn=db_manager.conn, cursor=db_manager.cursor, rent_id=rent_id))
+        total = float(self.total_price)
         
-        receipt_content = """Receipt
-        ---------------------------
-        Item 1: $10.00
-        Item 2: $15.50
-        Item 3: $7.99
+        
 
-        Total: $33.49
-        ---------------------------
-        Thank you for your purchase!
+        # Create the receipt content as a string
+        receipt_content = f"""        RENTAL RECEIPT
+        ----------------------------------------
+        Customer: {full_name}
+        Car Plate: {rent_id}
+        Starting Date: {starting_date}
+        Return Date: {return_date}
+        Days Rented: {days_rented}
+        Days Overdue: {self.overdue_days_var.get().strip()}
+        Downpayment: ${downpayment:.2f}
+        Total Price: ${total:.2f}
+        ----------------------------------------\n
+        """
+        if self.selected_damages:
+            receipt_content += "Damage Charges:\n"  # Start the section without extra indentation
+            for damage in self.selected_damages:
+                if damage in self.damage_data:
+                    receipt_content += f"         - {damage}: ${self.damage_data[damage]:.2f}\n"  # Consistent indentation
+
+       
+
+        # Add services if any
+        if services:
+            if self.selected_damages:
+                receipt_content += "        Additional Services:\n"  # No leading spaces for title
+            else:
+                receipt_content += "Additional Services:\n"  # No leading spaces for title
+            for service, cost in services:
+                receipt_content += f"         - {service}: ${cost:.2f}\n"  # Consistent indentation
+
+        # Calculate total after downpayment
+        total_after_downpayment = total - downpayment
+
+        receipt_content += f"""
+        ----------------------------------------
+        TOTAL AMOUNT DUE:         ${total:.2f}
+        Amount After Downpayment: ${total_after_downpayment:.2f}
+        ----------------------------------------
+        Thank you for choosing our service!
         """
 
+        # Define the path where the file will be saved
         desktop_path = os.path.join(os.path.expanduser("~"), "Desktop")
-        receipt_filename = "receipt.txt"
+        receipt_filename = f"Receipt_rent_{rent_id}.txt"
         receipt_path = os.path.join(desktop_path, receipt_filename)
+
+        # Write the receipt content to the text file
         with open(receipt_path, 'w') as file:
             file.write(receipt_content)
+
+        print(f"Receipt saved to: {receipt_path}")
 
 
     def validate_rent_inputs(self):
         rent_id = self.rent_id_combobox.get().strip()
         return_date_str = self.return_date_entry.get().strip()
+        #TODO: REMOVE
         overdue_days_str = self.overdue_days_var.get().strip()
         total_price_str = self.total_price_var.get().strip()
 
@@ -296,6 +348,6 @@ class ReturnRentFrame(tk.Frame):
         if user_penalty == 0:
             user_penalty += 15 # Dili nani penalty HAHAHAHAHA PLUS NA
 
-        self.self.user_score_penalty = user_penalty
+        self.user_score_penalty = user_penalty
 
         return penalty
