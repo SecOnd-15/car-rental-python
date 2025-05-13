@@ -31,6 +31,7 @@ class DashboardMenu(tk.Frame):
            
 
         if Session.session_role == "Admin":
+            self.add_button("Dashboard", "Dashboard")
             self.add_button("User Management", "StaffManagement")
             self.add_button("Car Approval", "CarApproval")
             self.add_button("Car Deletion Approval", "CarDeletionApproval")

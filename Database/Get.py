@@ -527,7 +527,7 @@ class Get:
         cursor.execute(query, (rental_id,))
         return cursor.fetchone()
         
-        return cursor.fetchone()
+        
     @staticmethod
     def all_ongoing_rental_ids(cursor):
         query = """
@@ -618,3 +618,18 @@ class Get:
         """, (rent_id,))
         result = cursor.fetchone()
         return result[0] if result else None
+    
+
+    @staticmethod
+    def get_car_count_by_status(cursor, status):
+        query = """
+            SELECT COUNT(cars.id)
+            FROM cars
+            JOIN availability_statuses ON cars.availability_id = availability_statuses.id
+            WHERE availability_statuses.status = %s
+        """
+        
+        cursor.execute(query, (status,))
+        result = cursor.fetchone()
+        return result[0] if result else 0
+   
