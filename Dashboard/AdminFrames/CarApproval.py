@@ -129,6 +129,8 @@ class CarApprovalFrame(tk.Frame):
                 car[10]  # Deletion Status
             )))
 
+        self.plate_number_combobox["values"] = [self.default_label] + db_manager.Get.get_all_pending_plate(cursor=db_manager.cursor),
+
 
             
 
