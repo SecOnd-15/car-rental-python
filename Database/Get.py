@@ -658,4 +658,30 @@ class Get:
         cursor.execute(query, (deletion_status,))
         result = cursor.fetchone()
         return result[0] if result else 0
+    
+    @staticmethod
+    def get_top_3_most_used_cars(cursor):
+        query = """
+            SELECT cars.id, cars.model_name, COUNT(rentals.id) AS rental_count
+            FROM cars
+            LEFT JOIN rentals ON cars.id = rentals.car_id
+            WHERE cars.deletion_status = 'None'  -- Only consider non-deleted cars
+            GROUP BY cars.id
+            ORDER BY rental_count DESC
+            LIMIT 3
+        """
+        
+        cursor.execute(query)
+        results = cursor.fetchall()
+        
+        if results:
+            # If there are results, return the top 3 cars
+            top_cars = [f"Car: {result[1]} (ID: {result[0]}), Rentals: {result[2]}" for result in results]
+            return top_cars
+        else:
+            # If no results, return a message
+            return ["No cars rented yet."]
+    
+
+
    
