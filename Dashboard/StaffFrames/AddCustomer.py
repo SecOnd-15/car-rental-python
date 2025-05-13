@@ -145,6 +145,7 @@ class AddCustomerFrame(tk.Frame):
             self.email_entry.delete(0, tk.END)
             self.phone_entry.delete(0, tk.END)
             self.address_entry.delete(0, tk.END)
+            self.user_license_entry.delete(0, tk.END)
 
             self.warningText.config(text="Customer added successfully!", fg="green")
 
