@@ -272,12 +272,12 @@ class ReturnRentFrame(tk.Frame):
         selected_id = self.rent_id_combobox.get()
         if selected_id != "Select Rent ID":
             rental_data = db_manager.Get.get_ongoing_rental_by_id(cursor=db_manager.cursor, rental_id=selected_id)
-            preliminary_total = rental_data[3]
+            preliminary_total = rental_data[4]
 
             total_damage_cost = Decimal(self.calculate_damage_cost())
             penalty = self.calculate_date_punishment()
 
-            final_total = preliminary_total + total_damage_cost + penalty
+            final_total = float(preliminary_total) + float(total_damage_cost) + float(penalty)
             self.set_total_price(final_total)
 
     def update_selected_damages(self):

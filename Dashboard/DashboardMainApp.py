@@ -76,7 +76,15 @@ class Dashboard(tk.Tk):
 
         
         self.currentFrame = None
-        # self.ChangeFrame("Statistic")  
+
+
+     
+        if Session.session_role == "Admin":
+            self.ChangeFrame("Dashboard")
+        elif Session.session_role == "Manager":
+            self.ChangeFrame("AddCarRequest")
+        elif Session.session_role == "Staff":
+            self.ChangeFrame("RentCar")
 
         # 10% ang menu
         self.grid_rowconfigure(0, weight=0)  
