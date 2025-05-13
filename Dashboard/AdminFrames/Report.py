@@ -49,22 +49,20 @@ class ReportFrame(tk.Frame):
 
         self.tree = ttk.Treeview(
             self.tree_frame,
-            columns=("ID", "User", "Car", "Rental Date", "Return Date", "Total Amount",
-                    "Status", "Preliminary Total", "Downpayment Amount"),
+            columns=("ID", "User", "Car", "Rental Date", "Return Date", "Downpayment",
+                    "Total", "status"),
             show="headings"
         )
 
-        
         columns = {
             "ID": 40,
             "User": 150,
             "Car": 120,
             "Rental Date": 100,
             "Return Date": 100,
-            "Total Amount": 100,
-            "Status": 90,
-            "Preliminary Total": 120,
-            "Downpayment Amount": 130
+            "Downpayment": 120,
+            "Total": 100,
+            "status": 90
         }
 
         for col, width in columns.items():

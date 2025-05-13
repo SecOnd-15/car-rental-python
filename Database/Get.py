@@ -727,10 +727,9 @@ class Get:
                 cars.model_name,
                 r.rental_date,
                 r.return_date,
+                r.downpayment_amount,
                 r.total_amount,
-                r.status,
-                r.preliminary_total,
-                r.downpayment_amount
+                r.status
             FROM rentals r
             JOIN customers c ON r.customer_id = c.id
             JOIN cars ON r.car_id = cars.id
