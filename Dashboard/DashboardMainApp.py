@@ -9,6 +9,8 @@ from Dashboard.ManagerFrames.AddCarRequest import AddCarRequestFrame
 from Dashboard.ManagerFrames.CarDeleteRequest import CarDeleteRequestFrame
 from Dashboard.ManagerFrames.AddServiceRequest import AddServiceRequestFrame
 from Dashboard.ManagerFrames.CarMaintenance import CarMaintenanceFrame
+from Dashboard.ManagerFrames.ManagerDashboard import ManagerDashboardFrame
+
 from Dashboard.AdminFrames.CarApproval import CarApprovalFrame
 from Dashboard.AdminFrames.CarDeletionApproval import CarDeletionApprovalFrame
 from Dashboard.AdminFrames.EditCarRentalPrice import EditCarRentalPriceFrame
@@ -69,7 +71,8 @@ class Dashboard(tk.Tk):
             "AddCustomer": AddCustomerFrame(self.mainFrame, app=self),
             "ReturnRent": ReturnRentFrame(self.mainFrame, app=self),
             "Dashboard": AdminDashboardFrame(self.mainFrame, app=self),
-            "Report": ReportFrame(self.mainFrame, app=self)
+            "Report": ReportFrame(self.mainFrame, app=self),
+            "ManagerDashboard": ManagerDashboardFrame(self.mainFrame, app=self)
         }
 
        
@@ -84,7 +87,7 @@ class Dashboard(tk.Tk):
         if Session.session_role == "Admin":
             self.ChangeFrame("Dashboard")
         elif Session.session_role == "Manager":
-            self.ChangeFrame("AddCarRequest")
+            self.ChangeFrame("ManagerDashboard")
         elif Session.session_role == "Staff":
             self.ChangeFrame("RentCar")
 
