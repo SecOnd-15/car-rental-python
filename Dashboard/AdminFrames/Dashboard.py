@@ -7,7 +7,9 @@ from Database.DatabaseInstance import db_manager
 class AdminDashboardFrame(tk.Frame):
     def __init__(self, master=None, app=None, **kwargs):
         super().__init__(master, **kwargs)
+        # ye confusing
         self.app = app
+        self.master = master
         self.configure(bg="#f8f9fa")
 
         self.grid_columnconfigure(0, weight=1, uniform="equal")
@@ -65,16 +67,19 @@ class AdminDashboardFrame(tk.Frame):
         
         if (type_of_data == "CarRequest"):
             self.car_approval_chart(frame1)
+            button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0, command=lambda: self.app.ChangeFrame("CarApproval"))
+            button.pack(fill="both", expand=True)
         elif (type_of_data == "ServiceRequest"):
             self.service_approval_chart(frame1)
+            button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0, command=lambda: self.app.ChangeFrame("ServiceApproval"))
+            button.pack(fill="both", expand=True)
         elif (type_of_data == "DeletionRequest"):
             self.deletion_approval_chart(frame1)
+            button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0, command=lambda: self.app.ChangeFrame("CarDeletionApproval"))
+            button.pack(fill="both", expand=True)
         else: # Useless ni pero just incase
             self.create_pie_chart(frame1)
         
-        button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0)
-        button.pack(fill="both", expand=True)
-
 
     def deletion_approval_chart(self, parent_frame):
          # Data for the pie chart
@@ -196,7 +201,6 @@ class AdminDashboardFrame(tk.Frame):
         chart_canvas = FigureCanvasTkAgg(fig, parent_frame)
         chart_canvas.draw()
         chart_canvas.get_tk_widget().pack(fill="both", expand=True)
-
 
 
     def refresh(self):
