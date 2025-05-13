@@ -85,7 +85,7 @@ class Dashboard(tk.Tk):
 
      
         if Session.session_role == "Admin":
-            self.ChangeFrame("Dashboard")
+            self.ChangeFrame("Report")
         elif Session.session_role == "Manager":
             self.ChangeFrame("ManagerDashboard")
         elif Session.session_role == "Staff":

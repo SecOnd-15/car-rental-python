@@ -660,28 +660,81 @@ class Get:
         return result[0] if result else 0
     
     @staticmethod
-    def get_top_3_most_used_cars(cursor):
+    def get_top_renters(cursor, limit=3):
         query = """
-            SELECT cars.id, cars.model_name, COUNT(rentals.id) AS rental_count
-            FROM cars
-            LEFT JOIN rentals ON cars.id = rentals.car_id
-            WHERE cars.deletion_status = 'None'  -- Only consider non-deleted cars
-            GROUP BY cars.id
-            ORDER BY rental_count DESC
-            LIMIT 3
+            SELECT c.first_name, c.last_name, COUNT(r.id) AS total_rentals
+            FROM customers c
+            LEFT JOIN rentals r ON c.id = r.customer_id
+            GROUP BY c.id
+            ORDER BY total_rentals DESC
+            LIMIT %s
         """
         
-        cursor.execute(query)
+        cursor.execute(query, (limit,))
         results = cursor.fetchall()
+
+        # Pad the results with "None" if fewer than 3 results
+        while len(results) < limit:
+            results.append(("None", "None", 0))  # Pad with a tuple that has 3 values
+
+        # Format results as tuples ("name", "X rentals")
+        formatted_results = [(f"{first_name} {last_name}", f"{total_rentals} rentals") for first_name, last_name, total_rentals in results]
         
-        if results:
-            # If there are results, return the top 3 cars
-            top_cars = [f"Car: {result[1]} (ID: {result[0]}), Rentals: {result[2]}" for result in results]
-            return top_cars
-        else:
-            # If no results, return a message
-            return ["No cars rented yet."]
+        return formatted_results
     
+    def get_top_cars(cursor, limit=3):
+        query = """
+            SELECT c.model_name, COUNT(r.id) AS total_rentals
+            FROM rentals r
+            JOIN cars c ON r.car_id = c.id
+            GROUP BY c.id
+            ORDER BY total_rentals DESC
+            LIMIT %s
+        """
+        
+        cursor.execute(query, (limit,))
+        results = cursor.fetchall()
 
+        while len(results) < limit:
+            results.append(("None", 0))
 
-   
+        formatted_results = [(f"{model_name}", f"{total_rentals} rentals") for model_name, total_rentals in results]
+        
+        return formatted_results
+    
+    @staticmethod
+    def get_worst_customers(cursor, limit=3):
+        query = """
+            SELECT first_name, last_name, reputation
+            FROM customers
+            ORDER BY reputation ASC
+            LIMIT %s
+        """
+        cursor.execute(query, (limit,))
+        results = cursor.fetchall()
+
+        while len(results) < limit:
+            results.append(("None", "None", 0))
+
+        return [(f"{first} {last}", f"Reputation: {reputation}") for first, last, reputation in results]
+
+    @staticmethod
+    def get_all_rentals(cursor):
+        query = """
+            SELECT 
+                r.id,
+                CONCAT(c.first_name, ' ', c.last_name) AS customer_name,
+                cars.model_name,
+                r.rental_date,
+                r.return_date,
+                r.total_amount,
+                r.status,
+                r.preliminary_total,
+                r.downpayment_amount
+            FROM rentals r
+            JOIN customers c ON r.customer_id = c.id
+            JOIN cars ON r.car_id = cars.id
+            ORDER BY r.rental_date DESC
+        """
+        cursor.execute(query)
+        return cursor.fetchall()

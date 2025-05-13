@@ -11,7 +11,7 @@ class DashboardMenu(tk.Frame):
         self.app = app
         self.buttons = []
         self.last_pressed = None
-        self.need_refresh = {"RentCar", "ReturnRent", "Dashboard"}
+        self.need_refresh = {"RentCar", "ReturnRent", "Dashboard", "Report"}
 
         # self.add_button("Statistic", "Statistic")
 
@@ -32,13 +32,14 @@ class DashboardMenu(tk.Frame):
            
 
         if Session.session_role == "Admin":
+            self.add_button("Dashboard Report", "Report")
             self.add_button("Dashboard", "Dashboard")
             self.add_button("User Management", "StaffManagement")
             self.add_button("Car Approval", "CarApproval")
             self.add_button("Car Deletion Approval", "CarDeletionApproval")
             self.add_button("Edit Rental Price", "EditCarRentalPrice")
             self.add_button("Service Approval", "ServiceApproval")
-            self.add_button("Report", "Report")
+            
           
         self.logoutButton = tk.Button(
             self,

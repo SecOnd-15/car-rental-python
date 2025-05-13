@@ -26,41 +26,83 @@ class ReportFrame(tk.Frame):
         self.top_users_frame = tk.Frame(self, bg="#e0ecff", bd=1, relief="solid")
         self.top_users_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
         tk.Label(self.top_users_frame, text="Top Users", font=("Segoe UI", 14, "bold"), bg="#e0ecff").pack(pady=10)
-        for name, count in [("Alice Johnson", "15 rentals"), ("Bob Smith", "12 rentals"), ("Carol Davis", "11 rentals")]:
+        for name, count in db_manager.Get.get_top_renters(cursor=db_manager.cursor, limit=3):
             tk.Label(self.top_users_frame, text=f"{name} - {count}", bg="#e0ecff", font=("Segoe UI", 12)).pack(anchor="w", padx=10)
 
         # [0,1] Top Cars
         self.top_cars_frame = tk.Frame(self, bg="#fff4cc", bd=1, relief="solid")
         self.top_cars_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
         tk.Label(self.top_cars_frame, text="Top Cars", font=("Segoe UI", 14, "bold"), bg="#fff4cc").pack(pady=10)
-        for car, count in [("Toyota Camry", "18 rentals"), ("Tesla Model 3", "14 rentals"), ("Honda Accord", "13 rentals")]:
+        for car, count in db_manager.Get.get_top_cars(cursor=db_manager.cursor, limit=3):
             tk.Label(self.top_cars_frame, text=f"{car} - {count}", bg="#fff4cc", font=("Segoe UI", 12)).pack(anchor="w", padx=10)
 
         # [0,2] Projected Income
-        self.projected_income_frame = tk.Frame(self, bg="#dfffe0", bd=1, relief="solid")
-        self.projected_income_frame.grid(row=1, column=2, sticky="nsew", padx=10, pady=10)
-        tk.Label(self.projected_income_frame, text="Projected Income", font=("Segoe UI", 14, "bold"), bg="#dfffe0").pack(pady=10)
-        tk.Label(self.projected_income_frame, text="$25,600.00", font=("Segoe UI", 18, "bold"),
-                 bg="#dfffe0", fg="#2e7d32").pack(pady=10)
+        self.worst_customers_frame = tk.Frame(self, bg="#ffd6d6", bd=1, relief="solid")
+        self.worst_customers_frame.grid(row=1, column=2, sticky="nsew", padx=10, pady=10)
+        tk.Label(self.worst_customers_frame, text="Worst Customers", font=("Segoe UI", 14, "bold"), bg="#ffd6d6").pack(pady=10)
+        for name, count in db_manager.Get.get_worst_customers(cursor=db_manager.cursor, limit=3):
+            tk.Label(self.worst_customers_frame, text=f"{name} - {count}", bg="#ffd6d6", font=("Segoe UI", 12)).pack(anchor="w", padx=10)
 
         # --- [2nd Row] - TreeView ---
         self.tree_frame = tk.Frame(self, bg="#ffffff", bd=1, relief="solid")
         self.tree_frame.grid(row=2, column=0, columnspan=3, sticky="nsew", padx=10, pady=(0, 10))
 
-        self.tree = ttk.Treeview(self.tree_frame, columns=("User", "Car", "Date", "Amount"), show="headings")
-        self.tree.heading("User", text="User")
-        self.tree.heading("Car", text="Car")
-        self.tree.heading("Date", text="Date")
-        self.tree.heading("Amount", text="Amount")
+        self.tree = ttk.Treeview(
+            self.tree_frame,
+            columns=("ID", "User", "Car", "Rental Date", "Return Date", "Total Amount",
+                    "Status", "Preliminary Total", "Downpayment Amount"),
+            show="headings"
+        )
+
+        
+        columns = {
+            "ID": 40,
+            "User": 150,
+            "Car": 120,
+            "Rental Date": 100,
+            "Return Date": 100,
+            "Total Amount": 100,
+            "Status": 90,
+            "Preliminary Total": 120,
+            "Downpayment Amount": 130
+        }
+
+        for col, width in columns.items():
+            self.tree.heading(col, text=col)
+            self.tree.column(col, width=width, anchor="center", stretch=True)
+
         self.tree.pack(fill="both", expand=True, padx=10, pady=10)
 
-        # Add fake data
-        fake_data = [
-            ("Alice Johnson", "Toyota Camry", "2025-05-01", "$320"),
-            ("Bob Smith", "Honda Accord", "2025-05-03", "$280"),
-            ("Carol Davis", "Tesla Model 3", "2025-05-05", "$450"),
-            ("Dan Wilson", "Ford Explorer", "2025-05-06", "$390"),
-            ("Eva Lee", "BMW X5", "2025-05-07", "$610"),
-        ]
-        for record in fake_data:
-            self.tree.insert("", "end", values=record)
+        rentals = db_manager.Get.get_all_rentals(cursor=db_manager.cursor)
+        for rental in rentals:
+            self.tree.insert("", "end", values=rental)
+
+
+    def refresh(self):
+        for widget in self.top_users_frame.winfo_children():
+            if widget.cget("text") != "Top Users":
+                widget.destroy()
+
+        if not any(widget.cget("text") == "Top Users" for widget in self.top_users_frame.winfo_children()):
+            tk.Label(self.top_users_frame, text="Top Users", font=("Segoe UI", 14, "bold"), bg="#e0ecff").pack(pady=10)
+
+        for name, count in db_manager.Get.get_top_renters(cursor=db_manager.cursor, limit=3):
+            tk.Label(self.top_users_frame, text=f"{name} - {count}", bg="#e0ecff", font=("Segoe UI", 12)).pack(anchor="w", padx=10)
+
+        for widget in self.top_cars_frame.winfo_children():
+            widget.destroy()
+
+        if not any(widget.cget("text") == "Top Cars" for widget in self.top_cars_frame.winfo_children()):
+            tk.Label(self.top_cars_frame, text="Top Cars", font=("Segoe UI", 14, "bold"), bg="#fff4cc").pack(pady=10)
+
+        top_cars = db_manager.Get.get_top_cars(cursor=db_manager.cursor, limit=3)
+        for car, count in top_cars:
+            tk.Label(self.top_cars_frame, text=f"{car} - {count}", bg="#fff4cc", font=("Segoe UI", 12)).pack(anchor="w", padx=10)
+
+
+        for row in self.tree.get_children():
+            self.tree.delete(row)
+
+        rentals = db_manager.Get.get_all_rentals(cursor=db_manager.cursor)
+        for rental in rentals:
+            self.tree.insert("", "end", values=rental)
