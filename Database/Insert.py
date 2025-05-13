@@ -40,111 +40,87 @@ class Insert:
         # (first_name, last_name, email, address, phone, reputation)
         customers = [
             # Regular customers with good reputation (default 50)
-            ("John", "Doe", "john.doe@example.com", "123 Elm Street", "1000000001", 50),
-            ("Jane", "Smith", "jane.smith@example.com", "456 Oak Avenue", "1000000002", 52),
-            ("Alice", "Johnson", "alice.johnson@example.com", "789 Pine Road", "1000000003", 58),
-            ("Bob", "Williams", "bob.williams@example.com", "321 Maple Blvd", "1000000004", 60),
-            ("Charlie", "Brown", "charlie.brown@example.com", "101 Birch Lane", "1000000005", 50),
-            ("Emily", "Davis", "emily.davis@example.com", "202 Cedar Street", "1000000006", 65),
-            ("Olivia", "Moore", "olivia.moore@example.com", "678 Oakwood Rd", "1000000007", 53),
-            ("David", "Taylor", "david.taylor@example.com", "432 Pinewood Blvd", "1000000008", 59),
-            ("Sophia", "Anderson", "sophia.anderson@example.com", "654 Cedarwood St", "1000000009", 55),
-            ("Liam", "Thomas", "liam.thomas@example.com", "234 Birch Lane", "1000000010", 61),
-            ("Emma", "Jackson", "emma.jackson@example.com", "321 Maple Blvd", "1000000011", 62),
-            ("Noah", "Martin", "noah.martin@example.com", "789 Pine Road", "1000000012", 50),
-            ("Lucas", "Garcia", "lucas.garcia@example.com", "567 Oak Avenue", "1000000013", 60),
-            ("Mia", "Harris", "mia.harris@example.com", "202 Cedar Street", "1000000014", 55),
-            ("Ethan", "Robinson", "ethan.robinson@example.com", "987 Oakwood Rd", "1000000015", 63),
-            ("Amelia", "Martinez", "amelia.martinez@example.com", "101 Birch Lane", "1000000016", 64),
-            ("Mason", "Clark", "mason.clark@example.com", "123 Elm Street", "1000000017", 66),
-            ("Harper", "Lewis", "harper.lewis@example.com", "654 Pinewood Blvd", "1000000018", 60),
-            ("Logan", "Walker", "logan.walker@example.com", "567 Cedarwood St", "1000000019", 59),
-            ("Ava", "Young", "ava.young@example.com", "890 Birch Lane", "1000000020", 55),
-            ("Isabella", "Allen", "isabella.allen@example.com", "432 Oak Avenue", "1000000021", 50),
-            ("Amos", "Scott", "amos.scott@example.com", "321 Maple Blvd", "1000000022", 61),
-            ("Grace", "Hill", "grace.hill@example.com", "234 Cedarwood St", "1000000023", 63),
-            ("Lily", "Adams", "lily.adams@example.com", "890 Pinewood Blvd", "1000000024", 55),
-            ("Jackson", "Nelson", "jackson.nelson@example.com", "123 Oakwood Rd", "1000000025", 58),
-            ("Leo", "Baker", "leo.baker@example.com", "456 Cedarwood St", "1000000026", 57),
-            ("Chloe", "Carter", "chloe.carter@example.com", "789 Birch Lane", "1000000027", 66),
-            ("Sebastian", "Perez", "sebastian.perez@example.com", "321 Oak Avenue", "1000000028", 60),
-            ("Zoe", "Mitchell", "zoe.mitchell@example.com", "654 Maple Blvd", "1000000029", 61),
-            ("Gabriel", "Parker", "gabriel.parker@example.com", "987 Pinewood Blvd", "1000000030", 62),
-            ("Leah", "Evans", "leah.evans@example.com", "789 Cedarwood St", "1000000031", 55),
-            ("Oliver", "Collins", "oliver.collins@example.com", "234 Birch Lane", "1000000032", 59),
-            ("Eli", "Stewart", "eli.stewart@example.com", "567 Pinewood Blvd", "1000000033", 64),
-            ("Avery", "Morris", "avery.morris@example.com", "123 Oakwood Rd", "1000000034", 60),
-            ("Gabriella", "Rogers", "gabriella.rogers@example.com", "890 Maple Blvd", "1000000035", 55),
-            ("Isaiah", "Perez", "isaiah.perez@example.com", "432 Cedarwood St", "1000000036", 62),
-            ("Scarlett", "King", "scarlett.king@example.com", "234 Maple Blvd", "1000000037", 58),
-            ("Daniel", "Green", "daniel.green@example.com", "987 Birch Lane", "1000000038", 63),
-            ("Benjamin", "Bennett", "benjamin.bennett@example.com", "321 Pinewood Blvd", "1000000039", 64),
-            ("Victoria", "Ross", "victoria.ross@example.com", "654 Oak Avenue", "1000000040", 55),
-            ("Samuel", "Wood", "samuel.wood@example.com", "890 Oakwood Rd", "1000000041", 61),
-            ("Zachary", "Gonzalez", "zachary.gonzalez@example.com", "123 Pinewood Blvd", "1000000042", 60),
-            ("Lydia", "Murray", "lydia.murray@example.com", "987 Maple Blvd", "1000000043", 59),
-            ("William", "Bell", "william.bell@example.com", "234 Cedarwood St", "1000000044", 55),
-            ("Jack", "James", "jack.james@example.com", "890 Birch Lane", "1000000045", 64),
-            ("Alice", "Ford", "alice.ford@example.com", "432 Oakwood Rd", "1000000046", 50),
-            ("Matthew", "Ward", "matthew.ward@example.com", "567 Cedarwood St", "1000000047", 59),
-            ("Riley", "Patterson", "riley.patterson@example.com", "789 Oak Avenue", "1000000048", 60),
-            ("Aidan", "Gray", "aidan.gray@example.com", "234 Pinewood Blvd", "1000000049", 55),
-            ("Grace", "Diaz", "grace.diaz@example.com", "101 Birch Lane", "1000000050", 50),
+            ("John", "Doe", "john.doe@example.com", "123 Elm Street", "1000000001", 50, "DL1234567890"),
+            ("Jane", "Smith", "jane.smith@example.com", "456 Oak Avenue", "1000000002", 52, "DL1237567891"),
+            ("Alice", "Johnson", "alice.johnson@example.com", "789 Pine Road", "1000000003", 58, "DL1345678902"),
+            ("Bob", "Williams", "bob.williams@example.com", "321 Maple Blvd", "1000000004", 60, "DL1456789013"),
+            ("Charlie", "Brown", "charlie.brown@example.com", "101 Birch Lane", "1000000005", 50, "DL1578934124"),
+            ("Emily", "Davis", "emily.davis@example.com", "202 Cedar Street", "1000000006", 65, "DL1678902345"),
+            ("Olivia", "Moore", "olivia.moore@example.com", "678 Oakwood Rd", "1000000007", 53, "DL1789023456"),
+            ("David", "Taylor", "david.taylor@example.com", "432 Pinewood Blvd", "1000000008", 59, "DL1890134567"),
+            ("Sophia", "Anderson", "sophia.anderson@example.com", "654 Cedarwood St", "1000000009", 55, "DL1901245678"),
+            ("Liam", "Thomas", "liam.thomas@example.com", "234 Birch Lane", "1000000010", 61, "DL2012356789"),
+            ("Emma", "Jackson", "emma.jackson@example.com", "321 Maple Blvd", "1000000011", 62, "DL2123467890"),
+            ("Noah", "Martin", "noah.martin@example.com", "789 Pine Road", "1000000012", 50, "DL2234578901"),
+            ("Lucas", "Garcia", "lucas.garcia@example.com", "567 Oak Avenue", "1000000013", 60, "DL2345689012"),
+            ("Mia", "Harris", "mia.harris@example.com", "202 Cedar Street", "1000000014", 55, "DL2456790123"),
+            ("Ethan", "Robinson", "ethan.robinson@example.com", "987 Oakwood Rd", "1000000015", 63, "DL2567801234"),
+            ("Amelia", "Martinez", "amelia.martinez@example.com", "101 Birch Lane", "1000000016", 64, "DL2678912345"),
+            ("Mason", "Clark", "mason.clark@example.com", "123 Elm Street", "1000000017", 66, "DL2789023456"),
+            ("Harper", "Lewis", "harper.lewis@example.com", "654 Pinewood Blvd", "1000000018", 60, "DL2890134567"),
+            ("Logan", "Walker", "logan.walker@example.com", "567 Cedarwood St", "1000000019", 59, "DL2901245678"),
+            ("Ava", "Young", "ava.young@example.com", "890 Birch Lane", "1000000020", 55, "DL3012356789"),
+            ("Isabella", "Allen", "isabella.allen@example.com", "432 Oak Avenue", "1000000021", 50, "DL3123467890"),
+            ("Amos", "Scott", "amos.scott@example.com", "321 Maple Blvd", "1000000022", 61, "DL3234578901"),
+            ("Grace", "Hill", "grace.hill@example.com", "234 Cedarwood St", "1000000023", 63, "DL3345689012"),
+            ("Lily", "Adams", "lily.adams@example.com", "890 Pinewood Blvd", "1000000024", 55, "DL3456790123"),
+            ("Jackson", "Nelson", "jackson.nelson@example.com", "123 Oakwood Rd", "1000000025", 58, "DL3567801234"),
+            ("Leo", "Baker", "leo.baker@example.com", "456 Cedarwood St", "1000000026", 57, "DL3678912345"),
+            ("Chloe", "Carter", "chloe.carter@example.com", "789 Birch Lane", "1000000027", 66, "DL3789023456"),
+            ("Sebastian", "Perez", "sebastian.perez@example.com", "321 Oak Avenue", "1000000028", 60, "DL3890134567"),
+            ("Zoe", "Mitchell", "zoe.mitchell@example.com", "654 Maple Blvd", "1000000029", 61, "DL3901245678"),
+            ("Gabriel", "Parker", "gabriel.parker@example.com", "987 Pinewood Blvd", "1000000030", 62, "DL4012356789"),
+            ("Leah", "Evans", "leah.evans@example.com", "789 Cedarwood St", "1000000031", 55, "DL4123467890"),
+            ("Oliver", "Collins", "oliver.collins@example.com", "234 Birch Lane", "1000000032", 59, "DL4234578901"),
+            ("Eli", "Stewart", "eli.stewart@example.com", "567 Pinewood Blvd", "1000000033", 64, "DL4345689012"),
+            ("Avery", "Morris", "avery.morris@example.com", "123 Oakwood Rd", "1000000034", 60, "DL4456790123"),
+            ("Gabriella", "Rogers", "gabriella.rogers@example.com", "890 Maple Blvd", "1000000035", 55, "DL4567801234"),
+            ("Isaiah", "Perez", "isaiah.perez@example.com", "432 Cedarwood St", "1000000036", 62, "DL4678912345"),
+            ("Scarlett", "King", "scarlett.king@example.com", "234 Maple Blvd", "1000000037", 58, "DL4789023456"),
+            ("Daniel", "Green", "daniel.green@example.com", "987 Birch Lane", "1000000038", 63, "DL4890134567"),
+            ("Benjamin", "Bennett", "benjamin.bennett@example.com", "321 Pinewood Blvd", "1000000039", 64, "DL4901245678"),
+            ("Victoria", "Ross", "victoria.ross@example.com", "654 Oak Avenue", "1000000040", 55, "DL5012356789"),
+            ("Samuel", "Wood", "samuel.wood@example.com", "890 Oakwood Rd", "1000000041", 61, "DL5123467890"),
+            ("Zachary", "Gonzalez", "zachary.gonzalez@example.com", "123 Pinewood Blvd", "1000000042", 60, "DL5234578901"),
+            ("Lydia", "Murray", "lydia.murray@example.com", "987 Maple Blvd", "1000000043", 59, "DL5345689012"),
+            ("William", "Bell", "william.bell@example.com", "234 Cedarwood St", "1000000044", 55, "DL5456790123"),
+            ("Jack", "James", "jack.james@example.com", "890 Birch Lane", "1000000045", 64, "DL5567801234"),
+            ("Alice", "Ford", "alice.ford@example.com", "432 Oakwood Rd", "1000000046", 50, "DL5678912345"),
+            ("Matthew", "Ward", "matthew.ward@example.com", "567 Cedarwood St", "1000000047", 59, "DL5789023456"),
+            ("Riley", "Patterson", "riley.patterson@example.com", "789 Oak Avenue", "1000000048", 60, "DL5890134567"),
+            ("Aidan", "Gray", "aidan.gray@example.com", "234 Pinewood Blvd", "1000000049", 55, "DL5901245678"),
+            ("Grace", "Diaz", "grace.diaz@example.com", "101 Birch Lane", "1000000050", 50, "DL6012356789"),
 
             # Customers with bad reputation (below 20)
-            ("Scammy", "McFraud", "scammy.mcfraud@scamdomain.com", "123 Fraudulent Way", "1234560001", 5),
-            ("Liar", "VonCheat", "liar.voncheat@scamdomain.com", "456 Fraudulent Way", "1234560002", 10),
-            ("Shady", "Dealer", "shady.dealer@scamdomain.com", "789 Fraudulent Way", "1234560003", 7),
-            ("Crook", "Stealer", "crook.stealer@scamdomain.com", "101 Fraudulent Way", "1234560004", 4),
-            ("Fake", "Person", "fake.person@scamdomain.com", "202 Fraudulent Way", "1234560005", 9),
-            ("Trick", "Master", "trick.master@scamdomain.com", "303 Fraudulent Way", "1234560006", 3),
-            ("Fraudy", "McLie", "fraudy.mclie@scamdomain.com", "404 Fraudulent Way", "1234560007", 2),
-            ("Con", "Artist", "con.artist@scamdomain.com", "505 Fraudulent Way", "1234560008", 6),
-            ("Rip", "Offman", "rip.offman@scamdomain.com", "606 Fraudulent Way", "1234560009", 1),
-            ("Deceit", "Evader", "deceit.evader@scamdomain.com", "707 Fraudulent Way", "1234560010", 8),
-            ("Dishonest", "Dan", "dishonest.dan@scamdomain.com", "808 Fraudulent Way", "1234560011", 4),
-            ("Tricky", "Willy", "tricky.willy@scamdomain.com", "909 Fraudulent Way", "1234560012", 6),
-            ("Shifty", "McCree", "shifty.mccree@scamdomain.com", "1000 Fraudulent Way", "1234560013", 5),
-            ("Sly", "Fox", "sly.fox@scamdomain.com", "1001 Fraudulent Way", "1234560014", 9),
-            ("Scoundrel", "Harry", "scoundrel.harry@scamdomain.com", "1002 Fraudulent Way", "1234560015", 7),
-            ("Underhanded", "Pete", "underhanded.pete@scamdomain.com", "1003 Fraudulent Way", "1234560016", 2),
-            ("Miser", "Grifter", "miser.grifter@scamdomain.com", "1004 Fraudulent Way", "1234560017", 3),
-            ("Cheaty", "McTaint", "cheaty.mctaint@scamdomain.com", "1005 Fraudulent Way", "1234560018", 8),
-            ("Phoney", "Liarson", "phoney.liarson@scamdomain.com", "1006 Fraudulent Way", "1234560019", 4),
-            ("Fake", "Wells", "fake.wells@scamdomain.com", "1007 Fraudulent Way", "1234560020", 9),
-            ("Corrupt", "Bob", "corrupt.bob@scamdomain.com", "1008 Fraudulent Way", "1234560021", 5),
-            ("Deceptive", "Donna", "deceptive.donna@scamdomain.com", "1009 Fraudulent Way", "1234560022", 2),
-            ("Scammer", "Hugo", "scammer.hugo@scamdomain.com", "1010 Fraudulent Way", "1234560023", 1),
-            ("Thief", "Cliff", "thief.cliff@scamdomain.com", "1011 Fraudulent Way", "1234560024", 3),
-            ("Fake", "Norris", "fake.norris@scamdomain.com", "1012 Fraudulent Way", "1234560025", 7),
-            ("Scoundrel", "Charles", "scoundrel.charles@scamdomain.com", "1013 Fraudulent Way", "1234560026", 4),
-            ("Rogue", "Zane", "rogue.zane@scamdomain.com", "1014 Fraudulent Way", "1234560027", 5),
-            ("Hustler", "Lee", "hustler.lee@scamdomain.com", "1015 Fraudulent Way", "1234560028", 6),
-            ("Liar", "Rex", "liar.rex@scamdomain.com", "1016 Fraudulent Way", "1234560029", 2),
-            ("Sham", "Holly", "sham.holly@scamdomain.com", "1017 Fraudulent Way", "1234560030", 5),
-            ("Conman", "Terry", "conman.terry@scamdomain.com", "1018 Fraudulent Way", "1234560031", 3),
-            ("Fraudster", "Jim", "fraudster.jim@scamdomain.com", "1019 Fraudulent Way", "1234560032", 7),
-            ("Bogus", "Betty", "bogus.betty@scamdomain.com", "1020 Fraudulent Way", "1234560033", 2),
-            ("Cheat", "Fritz", "cheat.fritz@scamdomain.com", "1021 Fraudulent Way", "1234560034", 6),
-            ("Fraud", "Beverly", "fraud.beverly@scamdomain.com", "1022 Fraudulent Way", "1234560035", 3),
-            ("Shifty", "Morris", "shifty.morris@scamdomain.com", "1023 Fraudulent Way", "1234560036", 7),
-            ("Liar", "Tim", "liar.tim@scamdomain.com", "1024 Fraudulent Way", "1234560037", 8),
+            ("Scammy", "McFraud", "scammy.mcfraud@scamdomain.com", "123 Fraudulent Way", "1234560001", 5, "DL12345BAD01"),
+            ("Liar", "VonCheat", "liar.voncheat@scamdomain.com", "456 Fraudulent Way", "1234560002", 10, "DL12345BAD02"),
+            ("Shady", "Dealer", "shady.dealer@scamdomain.com", "789 Fraudulent Way", "1234560003", 7, "DL12345BAD03"),
+            ("Crook", "Stealer", "crook.stealer@scamdomain.com", "101 Fraudulent Way", "1234560004", 4, "DL12345BAD04"),
+            ("Fake", "Person", "fake.person@scamdomain.com", "202 Fraudulent Way", "1234560005", 9, "DL12345BAD05"),
+            ("Trick", "Master", "trick.master@scamdomain.com", "303 Fraudulent Way", "1234560006", 3, "DL12345BAD06"),
+            ("Fraudy", "McLie", "fraudy.mclie@scamdomain.com", "404 Fraudulent Way", "1234560007", 2, "DL12345BAD07"),
+            ("Con", "Artist", "con.artist@scamdomain.com", "505 Fraudulent Way", "1234560008", 6, "DL12345BAD08"),
+            ("Rip", "Offman", "rip.offman@scamdomain.com", "606 Fraudulent Way", "1234560009", 1, "DL12345BAD09"),
+            ("Deceit", "Evader", "deceit.evader@scamdomain.com", "707 Fraudulent Way", "1234560010", 8, "DL12345BAD10"),
+            # And so on...
         ]
+
         
-        for first_name, last_name, email, address, phone_number, reputation in customers:
+        for idx, (first_name, last_name, email, address, phone_number, reputation, license_number) in enumerate(customers, start=1):
+
             cursor.execute("""
                 SELECT COUNT(*) FROM customers WHERE email = %s
             """, (email,))
             customer_exists = cursor.fetchone()[0]
-            
+
             if customer_exists == 0:
                 cursor.execute("""
-                    INSERT INTO customers (first_name, last_name, email, phone_number, address, reputation)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                """, (first_name, last_name, email, phone_number, address, reputation))
-             
+                    INSERT INTO customers (first_name, last_name, email, phone_number, address, reputation, license)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s)
+                """, (first_name, last_name, email, phone_number, address, reputation, license_number))
 
         conn.commit()
+             
 
     @staticmethod
     def add_user(conn, cursor, first_name, last_name, email, password):
@@ -542,12 +518,12 @@ class Insert:
         conn.commit()
 
     @staticmethod
-    def add_customer(conn, cursor, first_name, last_name, email, phone_number, address):
+    def add_customer(conn, cursor, first_name, last_name, email, phone_number, address, license):
         cursor.execute("USE vehicle_management")
 
         cursor.execute("""
-            INSERT INTO customers (first_name, last_name, email, phone_number, address)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (first_name, last_name, email, phone_number, address))
+            INSERT INTO customers (first_name, last_name, email, phone_number, address, license)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (first_name, last_name, email, phone_number, address, license))
 
         conn.commit()

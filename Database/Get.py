@@ -457,7 +457,7 @@ class Get:
     @staticmethod
     def get_all_customers(cursor):
         cursor.execute("""
-            SELECT first_name, last_name, email, phone_number, address
+            SELECT first_name, last_name, email, phone_number, address, license
             FROM customers
         """)
         rows = cursor.fetchall()
@@ -468,7 +468,8 @@ class Get:
                 "last_name": row[1],
                 "email": row[2],
                 "phone_number": row[3],
-                "address": row[4]
+                "address": row[4],
+                "license": row[5]
             }
             for row in rows
         ]

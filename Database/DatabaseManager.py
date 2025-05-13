@@ -173,6 +173,7 @@ class DatabaseManager:
                 email VARCHAR(100) NOT NULL UNIQUE,
                 phone_number VARCHAR(15),
                 address VARCHAR(255),
+                license VARCHAR(100) NOT NULL,
                 reputation INT DEFAULT 50
             )
         """)

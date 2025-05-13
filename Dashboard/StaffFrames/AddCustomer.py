@@ -35,18 +35,21 @@ class AddCustomerFrame(tk.Frame):
         tk.Label(form_frame, text="Phone Number", bg="#f0f0f0", font=("Helvetica", 12)).grid(row=2, column=1, padx=5, pady=2, sticky="w")
         self.phone_entry = tk.Entry(form_frame, font=("Helvetica", 14), width=30)
         self.phone_entry.grid(row=3, column=1, padx=10, pady=2, sticky="w")
+
+        tk.Label(form_frame, text="User License", bg="#f0f0f0", font=("Helvetica", 12)).grid(row=4, column=1, padx=5, pady=2, sticky="w")
+        self.user_license_entry = tk.Entry(form_frame, font=("Helvetica", 14), width=30)
+        self.user_license_entry.grid(row=5, column=1, padx=10, pady=2, sticky="w")
         
         tk.Label(form_frame, text="Address", bg="#f0f0f0", font=("Helvetica", 12)).grid(row=4, column=0, padx=5, pady=2, sticky="w")
-        self.address_entry = tk.Entry(form_frame, font=("Helvetica", 14), width=64)
-        self.address_entry.grid(row=5, column=0, columnspan=2, padx=10, pady=2, sticky="w")
+        self.address_entry = tk.Entry(form_frame, font=("Helvetica", 14), width=30)
+        self.address_entry.grid(row=5, column=0, padx=10, pady=2, sticky="w")
 
         self.add_customer_button = tk.Button(self, text="Add Customer", font=("Helvetica", 14), bg="#00998F", fg="white", bd=0, relief="sunken", command=self.add_customer)
         self.add_customer_button.pack(pady=(20, 0))
 
-      
         self.tree = ttk.Treeview(
             self,
-            columns=("First Name", "Last Name", "Email", "Phone", "Address"),
+            columns=("First Name", "Last Name", "Email", "Phone", "Address", "License"),
             show="headings"
         )
 
@@ -55,8 +58,9 @@ class AddCustomerFrame(tk.Frame):
         self.tree.heading("Email", text="Email")
         self.tree.heading("Phone", text="Phone Number")
         self.tree.heading("Address", text="Address")
+        self.tree.heading("License", text="License")
 
-        for col in ("First Name", "Last Name", "Email", "Phone", "Address"):
+        for col in ("First Name", "Last Name", "Email", "Phone", "Address", "License"):
             self.tree.column(col, width=150)
 
         self.load_customer_data()
@@ -79,7 +83,8 @@ class AddCustomerFrame(tk.Frame):
                 customer['last_name'],
                 customer['email'],
                 customer['phone_number'],
-                customer['address']
+                customer['address'],
+                customer['license']
             ))
 
 
@@ -88,6 +93,8 @@ class AddCustomerFrame(tk.Frame):
             raise ValueError("First Name is required.")
         if not self.last_name_entry.get().strip():
             raise ValueError("Last Name is required.")
+        if not self.user_license_entry.get().strip():
+            raise ValueError("User License is required.")
 
         email = self.email_entry.get().strip()
         if not email:
@@ -118,6 +125,7 @@ class AddCustomerFrame(tk.Frame):
             email = self.email_entry.get().strip()
             phone_number = self.phone_entry.get().strip()
             address = self.address_entry.get().strip()
+            user_license = self.user_license_entry.get().strip()
 
             db_manager.Insert.add_customer(
                 conn=db_manager.conn,
@@ -126,7 +134,8 @@ class AddCustomerFrame(tk.Frame):
                 last_name=last_name,
                 email=email,
                 phone_number=phone_number,
-                address=address
+                address=address,
+                license=user_license
             )
 
             self.load_customer_data()
