@@ -65,39 +65,75 @@ class AdminDashboardFrame(tk.Frame):
         
         if (type_of_data == "CarRequest"):
             self.car_approval_chart(frame1)
-        else:
+        elif (type_of_data == "ServiceRequest"):
+            self.service_approval_chart(frame1)
+        elif (type_of_data == "DeletionRequest"):
+            self.deletion_approval_chart(frame1)
+        else: # Useless ni pero just incase
             self.create_pie_chart(frame1)
         
         button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0)
         button.pack(fill="both", expand=True)
 
-    def car_approval_chart(self, parent_frame):
-        # Data for the pie chart
-        labels = ['Approved', 'Pending', 'Maintenance']
+
+    def deletion_approval_chart(self, parent_frame):
+         # Data for the pie chart
+        labels = ['To be deleted', 'None'] 
         sizes = [
-            db_manager.Get.get_car_count_by_status(cursor=db_manager.cursor, status="Available"),
-            db_manager.Get.get_car_count_by_status(cursor=db_manager.cursor, status="Pending"),
-            db_manager.Get.get_car_count_by_status(cursor=db_manager.cursor, status="Maintenance"),
+            db_manager.Get.get_car_count_by_deletion_status(cursor=db_manager.cursor, deletion_status="To Be Deleted"),
+            db_manager.Get.get_car_count_by_deletion_status(cursor=db_manager.cursor, deletion_status="None"),
         ]
         
-        # Adjusted colors to match the three categories
-        colors = ['#00b3a6', '#007c6e', '#f39c12']  # Added color for 'Maintenance'
+        # Adjusted colors to match the two categories
+        colors = ['#00b3a6', '#007c6e']
         
         # Adjusted explode values for each category
-        explode = (0.1, 0, 0)  # 'Approved' slice will be exploded
-
+        explode = (0.1, 0)  # 'Available' slice will be exploded (highlighted)
+        
         # Function to show absolute numbers instead of percentages
         def format_number(pct):
             total = sum(sizes)
-            val = int(round(pct / 100.0 * total))
+            val = int(round(pct / 100.0 * total))  # Round the value to get absolute numbers
             return f'{val}'
 
         # Create the pie chart
-        fig, ax = plt.subplots(figsize=(5, 3))
+        fig, ax = plt.subplots(figsize=(6, 4))  # Adjusted size for better readability
         ax.pie(sizes, explode=explode, labels=labels, colors=colors,
             autopct=format_number, shadow=True, startangle=75)
+        
+        ax.axis('equal')  # Equal aspect ratio for a circle to ensure it stays round
 
-        ax.axis('equal')  # Equal aspect ratio for a circle
+        # Create the canvas for the pie chart
+        chart_canvas = FigureCanvasTkAgg(fig, parent_frame)
+        chart_canvas.draw()
+        chart_canvas.get_tk_widget().pack(fill="both", expand=True)
+
+    def service_approval_chart(self, parent_frame):
+        # Data for the pie chart
+        labels = ['Available', 'Pending'] 
+        sizes = [
+            db_manager.Get.get_service_count_by_status(cursor=db_manager.cursor, status="Available"),
+            db_manager.Get.get_service_count_by_status(cursor=db_manager.cursor, status="Pending"),
+        ]
+        
+        # Adjusted colors to match the two categories
+        colors = ['#00b3a6', '#007c6e']
+        
+        # Adjusted explode values for each category
+        explode = (0.1, 0)  # 'Available' slice will be exploded (highlighted)
+        
+        # Function to show absolute numbers instead of percentages
+        def format_number(pct):
+            total = sum(sizes)
+            val = int(round(pct / 100.0 * total))  # Round the value to get absolute numbers
+            return f'{val}'
+
+        # Create the pie chart
+        fig, ax = plt.subplots(figsize=(6, 4))  # Adjusted size for better readability
+        ax.pie(sizes, explode=explode, labels=labels, colors=colors,
+            autopct=format_number, shadow=True, startangle=75)
+        
+        ax.axis('equal')  # Equal aspect ratio for a circle to ensure it stays round
 
         # Create the canvas for the pie chart
         chart_canvas = FigureCanvasTkAgg(fig, parent_frame)
@@ -128,6 +164,40 @@ class AdminDashboardFrame(tk.Frame):
         chart_canvas = FigureCanvasTkAgg(fig, parent_frame)
         chart_canvas.draw()
         chart_canvas.get_tk_widget().pack(fill="both", expand=True)
+
+    def car_approval_chart(self, parent_frame):
+         # Data for the pie chart
+        labels = ['Approved', 'Pending'] 
+        sizes = [
+            db_manager.Get.get_car_count_by_status(cursor=db_manager.cursor, status="Available"),
+            db_manager.Get.get_car_count_by_status(cursor=db_manager.cursor, status="Pending"),
+        ]
+        
+        # Adjusted colors to match the two categories
+        colors = ['#00b3a6', '#007c6e']
+        
+        # Adjusted explode values for each category
+        explode = (0.1, 0)  # 'Available' slice will be exploded (highlighted)
+        
+        # Function to show absolute numbers instead of percentages
+        def format_number(pct):
+            total = sum(sizes)
+            val = int(round(pct / 100.0 * total))  # Round the value to get absolute numbers
+            return f'{val}'
+
+        # Create the pie chart
+        fig, ax = plt.subplots(figsize=(6, 4))  # Adjusted size for better readability
+        ax.pie(sizes, explode=explode, labels=labels, colors=colors,
+            autopct=format_number, shadow=True, startangle=75)
+        
+        ax.axis('equal')  # Equal aspect ratio for a circle to ensure it stays round
+
+        # Create the canvas for the pie chart
+        chart_canvas = FigureCanvasTkAgg(fig, parent_frame)
+        chart_canvas.draw()
+        chart_canvas.get_tk_widget().pack(fill="both", expand=True)
+
+
 
     def refresh(self):
         # Destroy all widgets in the frame

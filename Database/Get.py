@@ -632,4 +632,29 @@ class Get:
         cursor.execute(query, (status,))
         result = cursor.fetchone()
         return result[0] if result else 0
+    
+    @staticmethod
+    def get_service_count_by_status(cursor, status):
+        query = """
+            SELECT COUNT(services.id)
+            FROM services
+            JOIN service_statuses ON services.status_id = service_statuses.id
+            WHERE service_statuses.status_name = %s
+        """
+        
+        cursor.execute(query, (status,))
+        result = cursor.fetchone()
+        return result[0] if result else 0
+    
+    @staticmethod
+    def get_car_count_by_deletion_status(cursor, deletion_status):
+        query = """
+            SELECT COUNT(cars.id)
+            FROM cars
+            WHERE cars.deletion_status = %s
+        """
+        
+        cursor.execute(query, (deletion_status,))
+        result = cursor.fetchone()
+        return result[0] if result else 0
    
