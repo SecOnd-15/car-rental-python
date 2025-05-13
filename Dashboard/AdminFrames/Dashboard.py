@@ -67,15 +67,18 @@ class AdminDashboardFrame(tk.Frame):
         
         if (type_of_data == "CarRequest"):
             self.car_approval_chart(frame1)
-            button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0, command=lambda: self.app.ChangeFrame("CarApproval"))
+            button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0, 
+                               command=lambda: self.app.menu.change_frame("Car Approval", "CarApproval"))
             button.pack(fill="both", expand=True)
         elif (type_of_data == "ServiceRequest"):
             self.service_approval_chart(frame1)
-            button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0, command=lambda: self.app.ChangeFrame("ServiceApproval"))
+            button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0, 
+                               command=lambda: self.app.menu.change_frame("Service Approval", "ServiceApproval"))
             button.pack(fill="both", expand=True)
         elif (type_of_data == "DeletionRequest"):
             self.deletion_approval_chart(frame1)
-            button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0, command=lambda: self.app.ChangeFrame("CarDeletionApproval"))
+            button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0, 
+                               command=lambda: self.app.menu.change_frame("Car Deletion Approval", "CarDeletionApproval"))
             button.pack(fill="both", expand=True)
         else: # Useless ni pero just incase
             self.create_pie_chart(frame1)
