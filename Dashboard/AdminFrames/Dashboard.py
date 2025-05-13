@@ -10,19 +10,20 @@ class AdminDashboardFrame(tk.Frame):
         self.app = app
         self.configure(bg="#f8f9fa")
 
-        # Create the 3-column grid with two rows in each column
         self.grid_columnconfigure(0, weight=1, uniform="equal")
         self.grid_columnconfigure(1, weight=1, uniform="equal")
         self.grid_columnconfigure(2, weight=1, uniform="equal")
 
-        # Row configuration to have two rows in each column
         self.grid_rowconfigure(0, weight=3)
         self.grid_rowconfigure(1, weight=1)
 
+        self.create_dashboard()
+
+    def create_dashboard(self):
         # === Create Frames ===
         # First column - Pie Chart + Button
-        frame1_wrapper = self.create_bordered_frame(self)
-        frame1_wrapper.grid(row=0, column=0, padx=10, pady=50, sticky="nsew")
+        self.frame1_wrapper = self.create_bordered_frame(self)
+        self.frame1_wrapper.grid(row=0, column=0, padx=10, pady=50, sticky="nsew")
 
         # Second column - Pie Chart + Button
         frame2_wrapper = self.create_bordered_frame(self)
@@ -33,7 +34,7 @@ class AdminDashboardFrame(tk.Frame):
         frame3_wrapper.grid(row=0, column=2, padx=10, pady=50, sticky="nsew")
 
         # === Content for Frame1 (Top Row) ===
-        self.create_content_for_frame(frame1_wrapper, "Approve Car Requests", "Go to Car Approval", "CarRequest")
+        self.create_content_for_frame(self.frame1_wrapper, "Approve Car Requests", "Go to Car Approval", "CarRequest")
 
         # === Content for Frame2 (Top Row) ===
         self.create_content_for_frame(frame2_wrapper, "Pending Service Approvals", "Go to Service Approval", "ServiceRequest")
@@ -49,7 +50,6 @@ class AdminDashboardFrame(tk.Frame):
 
         frame1_content = tk.Frame(frame_wrapper, bg="#bdc3c7")
         frame1_content.grid(row=1, column=0, padx=5, pady=5, sticky="nsew")
-
 
         frame_wrapper.grid_rowconfigure(0, weight=3)
         frame_wrapper.grid_rowconfigure(1, weight=1)
@@ -70,7 +70,6 @@ class AdminDashboardFrame(tk.Frame):
         
         button = tk.Button(frame1_content, text=button_text, font=("Segoe UI", 14), fg="white", bg="#00998F", bd=0)
         button.pack(fill="both", expand=True)
-
 
     def car_approval_chart(self, parent_frame):
         # Data for the pie chart
@@ -129,3 +128,11 @@ class AdminDashboardFrame(tk.Frame):
         chart_canvas = FigureCanvasTkAgg(fig, parent_frame)
         chart_canvas.draw()
         chart_canvas.get_tk_widget().pack(fill="both", expand=True)
+
+    def refresh(self):
+        # Destroy all widgets in the frame
+        for widget in self.winfo_children():
+            widget.destroy()
+
+        # Recreate the dashboard
+        self.create_dashboard()
