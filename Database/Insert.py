@@ -22,17 +22,19 @@ class Insert:
 
     @staticmethod
     def create_hardcoded_users(conn, cursor):
-
         roles = ['Admin', 'Manager', 'Staff']
         for role in roles:
             Insert.insert_role_if_not_exists(conn, cursor, role)
 
+        # Correct user field order: first_name, last_name, email, password, role_name
         users = [
-            ("a", "Admin", "a", "a", "Admin"),
-            ("b", "Manager", "b", "b", "Manager"),
-            ("b", "Staff", "c", "c", "Staff")
+            ("Emerson", "Latog", "Emerson@gmail.com", "123", "Admin"),
+            ("Jerimie", "Anino", "jerimie@gmail.com", "123", "Manager"),
+            ("Renz", "Arriola", "renz@gmail.com", "123", "Staff")
         ]
-        for first_name, last_name, password, email, role_name in users:
+
+        # Correct unpacking of user details
+        for first_name, last_name, email, password, role_name in users:
             Insert.insert_user_if_not_exists(conn, cursor, first_name, last_name, password, email, role_name)
 
     @staticmethod
